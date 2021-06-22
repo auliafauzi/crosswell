@@ -28,8 +28,20 @@ location /{your_project_name} {
           try_files $uri $uri/ /index.html;
         }
 
-
 ```
+
+## Run backend API
+``` bash
+#go to backend dir
+cd ./back
+
+#run flask app with python3
+python3 crosswell_api.py
+
+#or you can run the app backside mad kill the terminal *warning, please know what you do and how to stop the app before execute this
+nohup python3 crosswell_api.py
+```
+
 ``` bash
 API url is defined at ./src/utils.js file, on BASE_URL variable
 ```
