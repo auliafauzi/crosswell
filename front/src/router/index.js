@@ -21,10 +21,10 @@ import Login2 from '../views/pages/authentication/Login2.vue'
 // import Profile from '../views/pages/Profile.vue'
 import NotFound from '../views/pages/NotFound.vue'
 // import Invoice from '../views/pages/Invoice.vue'
-import Company from '../views/pages/CompanyList.vue'
-import UploadBatch from '../views/pages/UploadBatch.vue'
-import UserList from '../views/pages/UserList.vue'
-import WhiteList from '../views/pages/WhiteList.vue'
+// import Company from '../views/pages/CompanyList.vue'
+// import UploadBatch from '../views/pages/UploadBatch.vue'
+// import UserList from '../views/pages/UserList.vue'
+// import WhiteList from '../views/pages/WhiteList.vue'
 import Home from '../views/pages/Home.vue'
 import Post from '../views/pages/Post.vue'
 
@@ -87,46 +87,7 @@ const router = new Router({
         return { id }
       },
 		},
-		{
-			path: '/companyList',
-			name: 'company',
-			component: Company,
-			meta: {
-				auth: true,
-				layout: layouts.navLeft,
-				searchable: true
-			}
-		},
-		{
-			path: '/userList',
-			name: 'UserList',
-			component: UserList,
-			meta: {
-				auth: true,
-				layout: layouts.navLeft,
-				searchable: true
-			}
-		},
-		{
-			path: '/whiteList',
-			name: 'WhiteList',
-			component: WhiteList,
-			meta: {
-				auth: true,
-				layout: layouts.navLeft,
-				searchable: true
-			}
-		},
-		{
-			path: '/uploadBatch',
-			name: 'uploadBatch',
-			component: UploadBatch,
-			meta: {
-				auth: true,
-				layout: layouts.navLeft,
-				searchable: true
-			}
-		},
+
 
 		// {
 		// 	path: '/ecommerce-dashboard',
