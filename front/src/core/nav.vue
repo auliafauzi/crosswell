@@ -37,7 +37,7 @@
 		<i class="mdi mdi-account"></i><span slot="title">User Management</span>
 	</el-menu-item> -->
 	<el-menu-item index="/home">
-		<i class="mdi mdi-bookshel"></i><span slot="title">Home</span>
+		<i class="mdi mdi-bookshelf"></i><span slot="title">Home</span>
 	</el-menu-item>
 
 
