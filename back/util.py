@@ -2,8 +2,20 @@
 import psycopg2
 import re
 
-content = ['content_id', 'title', 'content', 'user_id','long','lat','image_path','file_path', 'date']
-comment = ['comment_id', 'comment', 'user_id', 'parent_id','date']
+data_structure = {
+	'content' : ['content_id', 'title', 'content', 'user_id','long','lat','image_path','file_path', 'date'],
+	'comment' : ['comment_id', 'comment', 'user_id', 'parent_id','date']
+} 
+
+def query(param1, param2) :
+	if param1 == "contentList" :
+		 return "select content_id, title, concat(left(content, 350), '...'), user_id, long, lat, image_path, file_path , date from cms.content order by date desc;"
+	elif param1 == "getContent" :
+		return "select content_id, title, content, user_id, long, lat, image_path, file_path, date  from cms.content where content_id ='"+param2+"' order by date desc"
+	elif param1 == 'commentList' :
+		return "select * from cms.comment where parent_id ='"+param2+"' order by date asc"
+	else :
+		return
 
 def connectToPostgres(methods, targethostname, targetdatabase, targetusername, targetpassword,data,query) :
 	body = None

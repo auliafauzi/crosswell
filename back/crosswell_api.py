@@ -21,13 +21,12 @@ config = {
     'http://localhost:8004', 
   ],
 
-  'SECRET_KEY': '...'
+  'SECRET_KEY': '...',
+  'targethostname' : 'localhost',
+  'targetdatabase' : 'crosswell', 
+  'targetusername' : 'auliafauzi',
+  'targetpassword' : ''
 }
-
-targethostname = 'localhost'
-targetdatabase = 'crosswell'
-targetusername = 'auliafauzi'
-targetpassword = ''
 
 
 CORS(app, resources={ r'/*': {'origins': config['ORIGINS']}}, supports_credentials=True)
@@ -38,42 +37,41 @@ CORS(app, resources={ r'/*': {'origins': config['ORIGINS']}}, supports_credentia
 @app.route('/api/v1/test', methods=['GET'])
 def api_test():
 	methods = 'get'
-	targethostname = 'localhost'
-	targetdatabase = 'crosswell'
-	targetusername = 'auliafauzi'
-	targetpassword = ''
 	query = 'select * from cms.content order by date desc'
-	result = util.connectToPostgres(methods,targethostname,targetdatabase,targetusername,None,None,query)
+	result = util.connectToPostgres(methods,config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,query)
 	return jsonify({"message":result,"code":200})
 
 @app.route('/api/v1/contentList', methods= ['GET'])
 def contentList():
 	result = []
-	query = "select content_id, title, concat(left(content, 350), '...'), user_id, long, lat, image_path, file_path , date from cms.content order by date desc;"
-	contentList = util.connectToPostgres('get',targethostname,targetdatabase,targetusername,None,None,query)
+	contentList = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('contentList',None))
 	for i in contentList :
-		zipped = dict(zip(util.content, i))
+		zipped = dict(zip(util.data_structure['content'], i))
 		result.append(zipped)
 	return jsonify({"message":result,"code":200})
 
 @app.route('/api/v1/contentDetail/<string:content_id>', methods= ['GET'])
 def contentDetail(content_id):
+	content_result = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('getContent',content_id))
+	content_result = dict(zip(util.data_structure['content'], content_result[0]))
+	return jsonify({"content":content_result,"code":200})
+
+
+@app.route('/api/v1/commentList/<string:parent_id>', methods= ['GET'])
+def commentList(parent_id):
 	comment_list = []
-	query1 = "select content_id, title, content, user_id, long, lat, image_path, file_path, date  from cms.content where content_id ='"+content_id+"' order by date desc"
-	query2 = "select * from cms.comment where parent_id ='"+content_id+"' order by date asc"
-	content_result = util.connectToPostgres('get',targethostname,targetdatabase,targetusername,None,None,query1)
-	content_result = dict(zip(util.content, content_result[0]))
-	comment_result = util.connectToPostgres('get',targethostname,targetdatabase,targetusername,None,None,query2)
+	comment_result = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('commentList',parent_id))
 	for i in comment_result :
-		zipped = dict(zip(util.comment, i))
+		zipped = dict(zip(util.data_structure['comment'], i))
 		comment_list.append(zipped)
-	return jsonify({"content":content_result,"comment":comment_list,"code":200})
+	return jsonify({"comment":comment_list,"code":200})
+
 
 @app.route('/api/v1/postContent/<string:user_id>', methods= ['POST'])
 def postContet(user_id):
 	methods1 = 'get'
 	query1 = "select content_id from cms.content"
-	maxnum = util.getMax(util.connectToPostgres(methods1,targethostname,targetdatabase,targetusername,None,None,query1))
+	maxnum = util.getMax(util.connectToPostgres(methods1,config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,query1))
 	new_content_id = "p" + str(int(maxnum[0])+1)
 	###
 	context = request.get_data()
@@ -86,7 +84,7 @@ def postContet(user_id):
 	user_id = user_id
 	new_content = [new_content_id,title,content,user_id,longitude,latitude,None,None,datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
 	query2 = util.insertQuery("cms.content", new_content)
-	result_push = util.connectToPostgres("push",targethostname,targetdatabase,targetusername,None,new_content,query2)
+	result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,new_content,query2)
 	return jsonify({"new_content_id":new_content_id,"title":title,"content":content,"new_content":new_content,"result_push":result_push,"code":200})
 
 
