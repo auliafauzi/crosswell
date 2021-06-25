@@ -71,17 +71,25 @@ def commentList(parent_id):
 def postContet(user_id):
 	methods1 = 'get'
 	query1 = "select content_id from cms.content"
-	maxnum = util.getMax(util.connectToPostgres(methods1,config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,query1))
-	new_content_id = "p" + str(int(maxnum[0])+1)
+	# maxnum = util.getMax(util.connectToPostgres(methods1,config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,query1))
+	# new_content_id = "p" + str(int(maxnum[0])+1)
+	new_content_id = "p" + str(util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('next_id',None))[0][0])
 	###
 	context = request.get_data()
 	title = request.form['title']
 	content = request.form['content']
 	longitude = request.form['longitude']
 	latitude = request.form['latitude']
-	# image= request.files['image']
-	# file = request.files['file']
-	user_id = user_id
+	try :
+		image = request.files['image']
+	except :
+		image = ''
+	try :
+		file = request.files['file']
+	except :
+		file = ''
+	filename = image.filename
+	image.save(os.path.join("uploads", image.filename))
 	new_content = [new_content_id,title,content,user_id,longitude,latitude,None,None,datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
 	query2 = util.insertQuery("cms.content", new_content)
 	result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,new_content,query2)
