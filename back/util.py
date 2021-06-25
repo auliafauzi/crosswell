@@ -14,6 +14,8 @@ def query(param1, param2) :
 		return "select content_id, title, content, user_id, long, lat, image_path, file_path, date  from cms.content where content_id ='"+param2+"' order by date desc"
 	elif param1 == 'commentList' :
 		return "select * from cms.comment where parent_id ='"+param2+"' order by date asc"
+	elif param1 == 'next_id' :
+		return "select max(NULLIF(regexp_replace(content_id, '\D','','g'), '')::numeric) +1 from cms.content"
 	else :
 		return
 
@@ -26,6 +28,9 @@ def connectToPostgres(methods, targethostname, targetdatabase, targetusername, t
 		if methods == 'get':
 			cur.execute(query)
 			body = cur.fetchall()
+		if methods == 'get_one':
+			cur.execute(query)
+			body = cur.fetch()
 		elif methods =='push':
 			cur.execute(query,data)
 			body = "- push to data warehouse is succsess \n"
