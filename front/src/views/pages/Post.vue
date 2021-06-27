@@ -1,6 +1,22 @@
 <template>
 	<div class="page-layout-sidebar-right scrollable only-y">
 		<!-- <div class="flex"> -->
+
+		<template v-if="SuccessToogle">
+      <b-row>
+        <b-col sm="12">
+          <b-alert show variant="success">{{SuccessMassage}}</b-alert>
+        </b-col>
+      </b-row>
+    </template>
+    <template v-if="AlertToggle">
+      <b-row>
+        <b-col sm="12">
+          <b-alert show variant="danger">{{AlertMassage}}</b-alert>
+        </b-col>
+      </b-row>
+    </template>
+
 			<div class="box grow card-base card-shadow--small p-24" style= "margin-bottom: 20px; margin-left: 50px; margin-right: 300px; background: rgba(95, 143, 223, 0.2);">
 				<!-- <div style=" max-width: 1100px; margin: 0 auto; "> -->
 				<!-- <div style=" max-width: 11000px;"> -->
@@ -12,6 +28,7 @@
 						<img src="@/assets/images/photo1.jpg" class="demo-img" alt="demo image">
 					</p> -->
 					<h1 class="mt-8">{{this.content.title}}</h1>
+					<img :src="this.image"/>
 					<p class="mt-0">
 						{{this.content.content}}
 					</p>
@@ -19,7 +36,7 @@
 				</div>
 			</div>
       <div flex>
-        <b-button variant="outline-primary" size="sm" class="mr-1" style="margin-left: 70px;">
+        <b-button variant="outline-primary" @click="openPostCommentDialog()" size="sm" class="mr-1" style="margin-left: 70px;">
           Leave Comment
         </b-button>
           <b-button variant="outline-primary" size="sm" class="mr-1" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
@@ -52,11 +69,26 @@
 			</div>
 		<!-- </div> -->
 
-    <b-modal id="NewPostModal"
-       v-model="postModalToggle"
-       ok-title="Ok">
+		<b-modal id="NewCommentModal"
+       title="Post Something"
+       v-model="commentModalToggle"
+       size="lg"
+       ok-title="Ok"
+       @ok="checkBeforeSubmit">
 
-    </b-modal>
+       <div class="page-quill scrollable">
+     		<div class="card-base card-shadow--medium">
+     			<VuePellEditor
+     				:actions="dialogOptions"
+     				:content="dialogComment"
+     				:placeholder="dialogPlaceholder"
+     				v-model="comment"
+     				:styleWithCss="false"
+     				editorHeight="400px"
+     			/>
+     		</div>
+     	</div>
+		</b-modal>
 	</div>
 </template>
 
@@ -75,9 +107,24 @@ export default {
       content : [],
       commentList : [],
       content_id : '',
-      postModalToggle : false,
+      commentModalToggle : false,
+			SuccessToogle : false,
+			AlertToggle : false,
       tango : true,
-			sidebarOpen: false
+			sidebarOpen: false,
+			dialogComment: '',
+      dialogOptions: [
+        {
+          // name: 'file',
+					icon: 'Write_Comment',
+					title: 'Write Comment'
+					// result: () => {
+					// this.UploadFileToggle = true
+				}
+			],
+      comment: '',
+      dialogPlaceholder: "Write Something...",
+			image : null
 		}
 	},
 
@@ -131,12 +178,78 @@ export default {
               }
             }
           })
+					axios.get(`http://127.0.0.1:5000/api/v1/contentImage/${this.$route.params.id}`,{
+	              headers
+	              },
+	          ).then(response => {
+	            if (response.status === 200) {
+	              if (response.data.code === 401) {
+	                this.errorAlert = true;
+	                this.errorMessage = response.data.message;
+	                setTimeout(() => {this.errorMessage= '',console.log(response.data.message),window.location.href = this.HomeLocation}, 2000);
+	              } else {
+	                this.image = response.data
+									console.log("image: " + this.image)
+	              }
+	            }
+	          })
+
 
     },
-    goTo(content_id) {
-      // this.postModalToggle = true
-      console.log(content_id)
-      this.$router.push({name: 'post/' + content_id})
+		submitContent() {
+			this.comment = this.comment.replace('<div>','');
+      this.comment = this.comment.replace('</div>','');
+      var headers = {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${this.token}`
+      };
+      axios.post(`http://127.0.0.1:5000/api/v1/postComment/${this.user_id}/${this.$route.params.id}`,
+        {
+					comment: this.comment
+				},{headers}).then((response) => {
+        // console.log(response.data.result)
+        if (response.status === 200) {
+          if (response.data.status === "Success") {
+            // this.clearFiles()
+            // this.successMessage = 'File Upload Has Been Completed ';
+            this.successMessage = response.data.status + response.data.message
+            this.successUploadFile = true;
+            setTimeout(() => {this.successUploadFile = false, this.file = '', location.reload()}, 3000);
+          } else {
+            this.errorMessage = 'Internal Server Error';
+            this.errorUploadFile = true;
+            setTimeout(() => {this.errorUploadFile = false, this.file = ''}, 5000);
+          }
+        } else {
+          this.errorMessage = 'Internal Server Error';
+          this.errorUploadFile = true;
+          setTimeout(() => {this.errorUploadFile = false, this.file = ''}, 5000);
+        }
+				this.getData()
+      }).catch((error) => {
+        if (error.response !== undefined) {
+          this.success = false;
+          // setAlert(this, error.response);
+        }
+      });
+    },
+    // goTo(content_id) {
+    //   // this.postModalToggle = true
+    //   console.log(content_id)
+    //   this.$router.push({name: 'post/' + content_id})
+    // },
+		openPostCommentDialog() {
+			this.commentModalToggle = true
+		},
+		checkBeforeSubmit(){
+      if (this.comment == "") {
+        this.AlertMassage = "Please Fill the Comment Field"
+        this.AlertToggle = true
+        setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 3000);
+      }
+      else {
+        this.submitContent()
+      }
     }
   },
 
