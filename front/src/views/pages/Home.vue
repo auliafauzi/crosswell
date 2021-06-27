@@ -31,11 +31,14 @@
 					</p> -->
           <p style="font-size: 10px;">
             {{i.date}}
-          <p>
+          </p>
 					<h1 class="mt-8">{{i.title}}</h1>
 					<p class="mt-0">
 						{{i.content}}
 					</p>
+					<p style="font-size: 10px;">
+            {{i.count_comment}}
+          </p>
 
 				</div>
 			</div>
@@ -237,6 +240,7 @@ export default {
             this.errorUploadFile = true;
             setTimeout(() => {this.errorUploadFile = false, this.file = ''}, 5000);
           }
+					this.getData()
         } else {
           this.errorMessage = 'Internal Server Error';
           this.errorUploadFile = true;
