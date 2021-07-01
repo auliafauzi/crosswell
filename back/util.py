@@ -1,10 +1,13 @@
 
 import psycopg2
 import re
+import string
+import secrets
 
 data_structure = {
 	'content' : ['content_id', 'title', 'content', 'user_id','long','lat','image_path','file_path', 'date', 'count_comment'],
-	'comment' : ['comment_id', 'comment', 'user_id', 'parent_id','date']
+	'comment' : ['comment_id', 'comment', 'user_id', 'parent_id','date'],
+	'userLess' : ['user_id', 'user_name', 'role_id', 'token_expired' ]
 } 
 
 def query(param1, param2,param3) :
@@ -19,7 +22,13 @@ def query(param1, param2,param3) :
 	elif param1 == 'count_comment' :
 		return "select count(comment_id) from cms.comment where parent_id = " + param2
 	elif param1 == 'get_image_path' :
-		return "select image_path from cms.content where content_id = '" + param2 + "'"
+		return "select image_path from cms.content where content_id = '" + param2 + "';"
+	elif param1 == 'user_less' :
+		return "select user_id, user_name, user_role, token_expired from cms.user where token = '" + param2 + "';"
+	elif param1 == 'login':
+		return "select token, token_expired, user_id, user_role, case when now() < token_expired then 'true' else 'false' end as status from cms.user where user_name ='"+param2+"' and password ='"+param3+"';"
+	elif param1 == 'push_new_token':
+		return 'a'
 	else :
 		return
 
@@ -68,6 +77,43 @@ def insertQuery(tablename, data):
 		else :
 			query = query + "%s,"
 	return query
+
+def insertQueryWithColumn(tablename, data, targetcol):
+	query = "INSERT INTO %s (" % tablename
+	for i in range(len(targetcol)) :
+		if i == len(targetcol)-1 :
+			query = query + targetcol[i] + ") "
+		else :
+			query = query + targetcol[i] + ","
+	query = query + "VALUES ("
+	for i in range(len(targetcol)) :
+		if i == len(targetcol)-1 :
+			query = query + "%s);"
+		else :
+			query = query + "%s,"
+	return query
+
+def updateQueryWithColumn(tablename, data, targetcol, targetrow, value_target):
+	query = "UPDATE %s SET " % tablename
+	for i in range(len(targetcol)) :
+		if i == len(targetcol)-1 :
+			query = query + targetcol[i] + " = '" + data[i] + "' "
+		else :
+			query = query + targetcol[i] + " = '" + data[i] + "',"
+	# query = query + "VALUES ("
+	# for i in range(len(targetcol)) :
+	# 	if i == len(targetcol)-1 :
+	# 		query = query + "%s);"
+	# 	else :
+	# 		query = query + "%s,"
+	query = query + "where " + targetrow + " = '" + value_target + "';"
+	return query
+
+def generateToken(user_id, date):
+	token = secrets.token_hex(16)
+	token = token + user_id + date
+	return token
+
 
 
 # print(ConnectToPostgres(methods,targethostname,targetdatabase,targetusername,None,None,query))

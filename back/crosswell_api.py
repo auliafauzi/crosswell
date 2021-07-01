@@ -5,7 +5,7 @@ import time
 import os
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 # from werkzeug import secure_filename
 import util
 
@@ -44,11 +44,15 @@ def api_test():
 @app.route('/api/v1/contentList', methods= ['GET'])
 def contentList():
 	result = []
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')    # Bearer YourTokenHere
+	token = bearer.split()[1]  # YourTokenHere
+	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('user_less',token, None))
 	contentList = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('contentList',None, None))
 	for i in contentList :
 		zipped = dict(zip(util.data_structure['content'], i))
 		result.append(zipped)
-	return jsonify({"message":result,"code":200})
+	return jsonify({"message":result,"code":200, "bearer":bearer, "user":userLess})
 
 @app.route('/api/v1/contentDetail/<string:content_id>', methods= ['GET'])
 def contentDetail(content_id):
@@ -122,6 +126,21 @@ def postComment(user_id, parent_id):
 	result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,new_comment,util.insertQuery("cms.comment", new_comment))
 	return jsonify({"new_coment_id":new_coment_id,"comment":comment,"new_comment":new_comment,"result_push":result_push,"code":200})
 
-
+@app.route('/api/v1/login', methods= ['POST'])
+def login():
+	context = request.get_data()
+	username = request.form['username']
+	password = request.form['password']
+	login_result = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('login',username,password)) 	#LOGIN, MATCH USERNAME AND PASSWORD, RETURN TOKEN 
+	if login_result == [] : 	#NO USERNAME-PASSWORD MATCH
+		return jsonify({"code":500,"status":"Failed","rc":102, "message": "Invalid username or password"})
+	else :		#FOUND USERNAME-PASSWORD MATCH, LOGIN SUCCESSFULL
+		if login_result[0][4] == 'true': #TOKEN NOT EXPIRED YET
+			return jsonify({"username":username,"user_role":login_result[0][3], "token": login_result[0][0]})
+		else : 		#TOKEN EXPIRED, UPDATE NEW TOKEN AND TOKEN_EXPIRED DATETIME
+			new_token = util.generateToken(login_result[0][2],datetime.now().strftime("%Y%m%d%H%M%S")) #GENERATE NEW TOKEN
+			data_to_push = [new_token,(datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")] #PREPARE DATA TO PUSH [NEWTOKEN,NEW-TOKEN-EXPIRED-DATETIME]
+			result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,data_to_push,util.updateQueryWithColumn("cms.user", data_to_push, ['token', 'token_expired'], "user_id", login_result[0][2]))
+			return jsonify({"username":username,"user_role":login_result[0][3], "token": new_token})
 
 app.run()
