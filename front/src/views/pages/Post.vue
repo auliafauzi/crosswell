@@ -36,7 +36,7 @@
 				</div>
 			</div>
       <div flex>
-        <b-button variant="outline-primary" @click="openPostCommentDialog()" size="sm" class="mr-1" style="margin-left: 70px;">
+        <b-button v-if= "user_id != '' " variant="outline-primary" @click="openPostCommentDialog()" size="sm" class="mr-1" style="margin-left: 70px;">
           Leave Comment
         </b-button>
           <b-button variant="outline-primary" size="sm" class="mr-1" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
@@ -141,7 +141,12 @@ export default {
    // this.$http.get('/post/' +this.id, function (data) {
    //    this.$set('track', data.track)
    // })
-	 this.user_id = String(getUserDataInSession2('UserId').replace(/\"/gi, ''))
+	 try {
+		 this.user_id = String(getUserDataInSession2('UserId').replace(/\"/gi, ''))
+	 } catch(err) {
+		 console.log("err: ", err)
+	 }
+
    this.content_id = this.$route.params.id
    console.log("yaa" + this.$route.params.id)
    this.getData()
