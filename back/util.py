@@ -100,12 +100,6 @@ def updateQueryWithColumn(tablename, data, targetcol, targetrow, value_target):
 			query = query + targetcol[i] + " = '" + data[i] + "' "
 		else :
 			query = query + targetcol[i] + " = '" + data[i] + "',"
-	# query = query + "VALUES ("
-	# for i in range(len(targetcol)) :
-	# 	if i == len(targetcol)-1 :
-	# 		query = query + "%s);"
-	# 	else :
-	# 		query = query + "%s,"
 	query = query + "where " + targetrow + " = '" + value_target + "';"
 	return query
 
