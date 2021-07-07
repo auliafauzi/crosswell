@@ -28,7 +28,7 @@
 						<img src="@/assets/images/photo1.jpg" class="demo-img" alt="demo image">
 					</p> -->
 					<h1 class="mt-8">{{this.content.title}}</h1>
-					<img :src="this.image"/>
+					<img v-if="this.content.image_path != '' " :src="this.ImagePath"/>
 					<p class="mt-0">
 						{{this.content.content}}
 					</p>
@@ -94,13 +94,13 @@
 
 <script>
 import axios from "axios";
-// import {getToken, getUserDataInSession2, BASE_URL} from '../../utils';
+import {getToken, getUserDataInSession2, BASE_URL} from '../../utils';
 export default {
 	name: 'LayoutSidebarRight',
 	data() {
 		return {
 			list : ['test1', 'test2', 'test3'],
-      user_id : "002",
+      user_id : '',
       // dummy hard coded user_role
       user_role : 2,
       //
@@ -124,7 +124,9 @@ export default {
 			],
       comment: '',
       dialogPlaceholder: "Write Something...",
-			image : null
+			image : null,
+			eligible : undefined,
+			ImagePath: "http://127.0.0.1:5000/api/v1/contentImage/" + this.$route.params.id
 		}
 	},
 
@@ -139,9 +141,11 @@ export default {
    // this.$http.get('/post/' +this.id, function (data) {
    //    this.$set('track', data.track)
    // })
+	 this.user_id = String(getUserDataInSession2('UserId').replace(/\"/gi, ''))
    this.content_id = this.$route.params.id
    console.log("yaa" + this.$route.params.id)
    this.getData()
+	 console.log("gambar: " + "http://127.0.0.1:5000/api/v1/contentImage/" + this.$route.params.id)
   },
   methods : {
     getData() {
@@ -161,6 +165,8 @@ export default {
               setTimeout(() => {this.errorMessage= '',console.log(response.data.message),window.location.href = this.HomeLocation}, 2000);
             } else {
               this.content = response.data.content
+							this.eligible = response.data.eligible
+							// console.log("eligible: ", this.eligible)
             }
           }
         })
@@ -178,21 +184,21 @@ export default {
               }
             }
           })
-					axios.get(`http://127.0.0.1:5000/api/v1/contentImage/${this.$route.params.id}`,{
-	              headers
-	              },
-	          ).then(response => {
-	            if (response.status === 200) {
-	              if (response.data.code === 401) {
-	                this.errorAlert = true;
-	                this.errorMessage = response.data.message;
-	                setTimeout(() => {this.errorMessage= '',console.log(response.data.message),window.location.href = this.HomeLocation}, 2000);
-	              } else {
-	                this.image = response.data
-									console.log("image: " + this.image)
-	              }
-	            }
-	          })
+					// axios.get(`http://127.0.0.1:5000/api/v1/contentImage/${this.$route.params.id}`,{
+	        //       headers
+	        //       },
+	        //   ).then(response => {
+	        //     if (response.status === 200) {
+	        //       if (response.data.code === 401) {
+	        //         this.errorAlert = true;
+	        //         this.errorMessage = response.data.message;
+	        //         setTimeout(() => {this.errorMessage= '',console.log(response.data.message),window.location.href = this.HomeLocation}, 2000);
+	        //       } else {
+	        //         this.image = response.data
+					// 				console.log("image: " + this.image)
+	        //       }
+	        //     }
+	        //   })
 
 
     },
