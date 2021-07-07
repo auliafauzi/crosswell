@@ -52,6 +52,7 @@ def contentList():
 	for i in contentList :
 		zipped = dict(zip(util.data_structure['content'], i))
 		result.append(zipped)
+	userLess = dict(zip(util.data_structure['userLess'], userLess[0]))
 	return jsonify({"message":result,"code":200, "bearer":bearer, "user":userLess})
 
 @app.route('/api/v1/contentDetail/<string:content_id>', methods= ['GET'])
@@ -81,8 +82,13 @@ def commentList(parent_id):
 	return jsonify({"comment":comment_list,"code":200})
 
 
-@app.route('/api/v1/postContent/<string:user_id>', methods= ['POST'])
-def postContet(user_id):
+@app.route('/api/v1/postContent', methods= ['POST'])
+def postContet():
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')    # Bearer YourTokenHere
+	token = bearer.split()[1]  # YourTokenHere
+	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('user_less',token, None))
+	user_id  = userLess[0][0]
 	# methods1 = 'get'
 	# query1 = "select content_id from cms.content"
 	# maxnum = util.getMax(util.connectToPostgres(methods1,config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,query1))
@@ -92,8 +98,12 @@ def postContet(user_id):
 	context = request.get_data()
 	title = request.form['title']
 	content = request.form['content']
-	longitude = request.form['longitude']
-	latitude = request.form['latitude']
+	try :
+		longitude = request.form['longitude']
+		latitude = request.form['latitude']
+	except :
+		longitude = ''
+		latitude = ''
 	try :
 		image = request.files['image']
 		filename = image.filename
@@ -128,19 +138,19 @@ def postComment(user_id, parent_id):
 
 @app.route('/api/v1/login', methods= ['POST'])
 def login():
-	context = request.get_data()
-	username = request.form['username']
-	password = request.form['password']
+	# context = request.get_data()
+	username = request.json['username']
+	password = request.json['password']
 	login_result = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('login',username,password)) 	#LOGIN, MATCH USERNAME AND PASSWORD, RETURN TOKEN 
 	if login_result == [] : 	#NO USERNAME-PASSWORD MATCH
 		return jsonify({"code":500,"status":"Failed","rc":102, "message": "Invalid username or password"})
 	else :		#FOUND USERNAME-PASSWORD MATCH, LOGIN SUCCESSFULL
 		if login_result[0][4] == 'true': #TOKEN NOT EXPIRED YET
-			return jsonify({"username":username,"user_role":login_result[0][3], "token": login_result[0][0]})
+			return jsonify({"username":username,"user_role":login_result[0][3],"user_id":login_result[0][2], "token": login_result[0][0]})
 		else : 		#TOKEN EXPIRED, UPDATE NEW TOKEN AND TOKEN_EXPIRED DATETIME
 			new_token = util.generateToken(login_result[0][2],datetime.now().strftime("%Y%m%d%H%M%S")) #GENERATE NEW TOKEN
 			data_to_push = [new_token,(datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")] #PREPARE DATA TO PUSH [NEWTOKEN,NEW-TOKEN-EXPIRED-DATETIME]
 			result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,data_to_push,util.updateQueryWithColumn("cms.user", data_to_push, ['token', 'token_expired'], "user_id", login_result[0][2]))
-			return jsonify({"username":username,"user_role":login_result[0][3], "token": new_token})
+			return jsonify({"username":username,"user_role":login_result[0][3], "user_id":login_result[0][2],"token": new_token})
 
 app.run()
