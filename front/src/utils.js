@@ -10,7 +10,7 @@ export const USER_DATA_NAME = 'userName';
 
 export const USER_PERMISSIONS_KEY = 'userPermissions';
 
-export const USER_ROLES = [{ text: 'Superadmin', value: '1', disabled: true }, { text: 'Admin', value: '2' }, { text: 'User', value: '3' }];
+export const USER_ROLES = [{ text: 'Superadmin', value: '1', disabled: true }, { text: 'Admin', value: '2' }, { text: 'User', value: '3' }, { text: 'Visitor', value: '0' }];
 
 export const RELATION_TO_CLIENT = [{ text: 'Peer', value: 'peer' }, { text: 'User', value: 'user' }, { text: 'Friend', value: 'friend' }];
 
@@ -63,4 +63,19 @@ export const getUserPermissionsFromSession = () => {
     return { items: [] };
   }
   return { items: getUserDataFromSession().permissions };
+};
+
+export const checkUser = () => {
+  let token = null
+  token = getToken()
+  // console.log('here1')
+  if (token == null || token == '' || token == undefined){
+    // console.log('here2')
+    saveUserDataInSession2('UserName','Visitor')
+    saveUserDataInSession2('UserRole',0)
+  }
+  else {
+    // console.log('here3')
+    return
+  }
 };
