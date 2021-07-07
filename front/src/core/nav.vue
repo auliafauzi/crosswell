@@ -1,4 +1,6 @@
 <template>
+
+	<div class=flex>
 	<el-menu
 		:mode="mode"
 		@select="goto"
@@ -41,428 +43,89 @@
 	</el-menu-item>
 
 
-
-<!--
-		<div class="el-menu-item-group__title" style="padding-top: 4px;"><span>Apps</span></div>
-		<el-submenu index="/dashboards" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-gauge"></i><span>Dashboard</span>
-			</template>
-			<el-menu-item index="/dashboard">
-				<span slot="title">Analytical</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce-dashboard">
-				<span slot="title">eCommerce</span>
-			</el-menu-item>
-			<el-menu-item index="/crypto-dashboard">
-				<span slot="title">Crypto</span>
-			</el-menu-item>
-		</el-submenu>
-		<el-menu-item index="/calendar">
-			<i class="mdi mdi-calendar"></i><span slot="title">Calendar</span>
-		</el-menu-item>
-		<el-menu-item index="/contacts">
-			<i class="mdi mdi-account-multiple-outline"></i><span slot="title">Contacts</span>
-		</el-menu-item>
-		<el-menu-item index="/gallery">
-			<i class="mdi mdi-image-multiple"></i><span slot="title">Gallery</span>
-		</el-menu-item>
-		<el-menu-item index="/cards">
-			<i class="mdi mdi-view-dashboard"></i><span slot="title">Cards</span>
-		</el-menu-item>
-		<el-menu-item index="/timeline">
-			<i class="mdi mdi-source-commit-local"></i><span slot="title">Timeline</span>
-		</el-menu-item>
-		<el-menu-item index="/mail">
-			<i class="mdi mdi-email-outline"></i><span slot="title">Mail</span>
-		</el-menu-item>
-		<el-submenu index="/ecommerce" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-cart-outline"></i><span>eCommerce</span>
-			</template>
-			<el-menu-item index="/ecommerce/dashboard">
-				<span slot="title">Dashboard</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/shop">
-				<span slot="title">Shop</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/products">
-				<span slot="title">Products</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/product-detail">
-				<span slot="title">Product Detail</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/product-list">
-				<span slot="title">Product List</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/new-product">
-				<span slot="title">New Product</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/account">
-				<span slot="title">My Account</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/cart">
-				<span slot="title">Cart</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/checkout">
-				<span slot="title">Checkout</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/customers">
-				<span slot="title">Customers</span>
-			</el-menu-item>
-			<el-menu-item index="/ecommerce/orders">
-				<span slot="title">Orders</span>
-			</el-menu-item>
-		</el-submenu>
-
-
-		<div class="el-menu-item-group__title"><span>User interface</span></div>
-		<el-submenu index="layout" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-view-quilt"></i><span>Layout</span>
-			</template>
-			<el-menu-item index="/layout/flexbox">
-				<span slot="title">Flexbox</span>
-			</el-menu-item>
-			<el-menu-item index="/layout/element-layout">
-				<span slot="title">Element</span>
-			</el-menu-item>
-			<el-menu-item index="/layout/blank">
-				<span slot="title">Blank page</span>
-			</el-menu-item>
-			<el-menu-item index="/layout/page-headers">
-				<span slot="title">Page headers</span>
-			</el-menu-item>
-			<el-menu-item index="/layout/sidebar-right">
-				<span slot="title">Sidebar right</span>
-			</el-menu-item>
-			<el-menu-item index="/layout/sidebar-left">
-				<span slot="title">Sidebar left</span>
-			</el-menu-item>
-			<el-menu-item index="/layout/tabbed">
-				<span slot="title">Tabbed page</span>
-			</el-menu-item>
-		</el-submenu>
-		<el-menu-item index="/themes">
-			<i class="mdi mdi-format-color-fill"></i><span slot="title">Themes</span>
-		</el-menu-item>
-		<el-submenu index="1" popper-class="main-navigation-submenu" popper-append-to-body>
-			<template slot="title">
-				<i class="mdi mdi-menu"></i><span>Multi level menu</span>
-			</template>
-			<el-menu-item index="1-1">item one (1)</el-menu-item>
-			<el-menu-item index="1-2">item two (2)</el-menu-item>
-			<el-menu-item index="1-3">item three (3)</el-menu-item>
-			<el-submenu index="1-4" popper-class="main-navigation-submenu" popper-append-to-body>
-				<template slot="title">item four (4)</template>
-				<el-submenu index="1-4-1" popper-class="main-navigation-submenu" popper-append-to-body>
-					<template slot="title">item one (4.1)</template>
-					<el-menu-item index="1-4-1-1">item one (4.1.1)</el-menu-item>
-					<el-menu-item index="1-4-1-2">item two (4.1.2)</el-menu-item>
-					<el-menu-item index="1-4-1-3">item three (4.1.3)</el-menu-item>
-				</el-submenu>
-				<el-submenu index="1-4-2" popper-class="main-navigation-submenu" popper-append-to-body>
-					<template slot="title">item two (4.2)</template>
-					<el-menu-item index="1-4-2-1">item one (4.2.1)</el-menu-item>
-					<el-menu-item index="1-4-2-2">item two (4.2.2)</el-menu-item>
-					<el-menu-item index="1-4-2-3">item three (4.2.3)</el-menu-item>
-				</el-submenu>
-				<el-menu-item index="1-4-3">item three (4-3)</el-menu-item>
-				<el-menu-item index="1-4-4">item four (4-4)</el-menu-item>
-				<el-menu-item index="1-4-5">item five (4-5)</el-menu-item>
-				<el-menu-item index="1-4-6">item six (4-6)</el-menu-item>
-				<el-menu-item index="1-4-7">item seven (4-7)</el-menu-item>
-			</el-submenu>
-		</el-submenu>
-		<el-submenu index="icons" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-folder-image"></i><span>Icons</span>
-			</template>
-			<el-menu-item index="/icons/md-icons">
-				<span slot="title">MD Icons</span>
-			</el-menu-item>
-			<el-menu-item index="/icons/flag-icons">
-				<span slot="title">Flag Icons</span>
-			</el-menu-item>
-		</el-submenu>
-		<el-menu-item index="/multi-language">
-			<i class="mdi mdi-translate"></i><span slot="title">Multi language</span>
-		</el-menu-item>
-		<el-menu-item index="/typography">
-			<i class="mdi mdi-format-font"></i><span slot="title">Typography</span>
-		</el-menu-item>
-		<el-menu-item index="/helper-classes">
-			<i class="mdi mdi-help-circle-outline"></i><span slot="title">Helper Classes</span>
-		</el-menu-item>
-		<el-submenu index="element" popper-class="main-navigation-submenu limit-height">
-			<template slot="title">
-				<i class="mdi mdi-shape"></i><span>Element</span>
-			</template>
-			<el-menu-item index="/element/button">
-				<span slot="title">Button</span>
-			</el-menu-item>
-			<el-menu-item index="/element/radio">
-				<span slot="title">Radio</span>
-			</el-menu-item>
-			<el-menu-item index="/element/checkbox">
-				<span slot="title">Checkbox</span>
-			</el-menu-item>
-			<el-menu-item index="/element/input">
-				<span slot="title">Input</span>
-			</el-menu-item>
-			<el-menu-item index="/element/input-number">
-				<span slot="title">Input Number</span>
-			</el-menu-item>
-			<el-menu-item index="/element/select">
-				<span slot="title">Select</span>
-			</el-menu-item>
-			<el-menu-item index="/element/cascader">
-				<span slot="title">Cascader</span>
-			</el-menu-item>
-			<el-menu-item index="/element/switch">
-				<span slot="title">Switch</span>
-			</el-menu-item>
-			<el-menu-item index="/element/slider">
-				<span slot="title">Slider</span>
-			</el-menu-item>
-			<el-menu-item index="/element/time-picker">
-				<span slot="title">Time Picker</span>
-			</el-menu-item>
-			<el-menu-item index="/element/date-picker">
-				<span slot="title">Date Picker</span>
-			</el-menu-item>
-			<el-menu-item index="/element/datetime-picker">
-				<span slot="title">Date Time Picker</span>
-			</el-menu-item>
-			<el-menu-item index="/element/upload">
-				<span slot="title">Upload</span>
-			</el-menu-item>
-			<el-menu-item index="/element/rate">
-				<span slot="title">Rate</span>
-			</el-menu-item>
-			<el-menu-item index="/element/color-picker">
-				<span slot="title">Color Picker</span>
-			</el-menu-item>
-			<el-menu-item index="/element/transfer">
-				<span slot="title">Transfer</span>
-			</el-menu-item>
-			<el-menu-item index="/element/form">
-				<span slot="title">Form</span>
-			</el-menu-item>
-			<el-menu-item index="/element/table">
-				<span slot="title">Table</span>
-			</el-menu-item>
-			<el-menu-item index="/element/tag">
-				<span slot="title">Tag</span>
-			</el-menu-item>
-			<el-menu-item index="/element/progress">
-				<span slot="title">Progress</span>
-			</el-menu-item>
-			<el-menu-item index="/element/tree">
-				<span slot="title">Tree</span>
-			</el-menu-item>
-			<el-menu-item index="/element/pagination">
-				<span slot="title">Pagination</span>
-			</el-menu-item>
-			<el-menu-item index="/element/badge">
-				<span slot="title">Badge</span>
-			</el-menu-item>
-			<el-menu-item index="/element/alert">
-				<span slot="title">Alert</span>
-			</el-menu-item>
-			<el-menu-item index="/element/loading">
-				<span slot="title">Loading</span>
-			</el-menu-item>
-			<el-menu-item index="/element/message">
-				<span slot="title">Message</span>
-			</el-menu-item>
-			<el-menu-item index="/element/message-box">
-				<span slot="title">Message Box</span>
-			</el-menu-item>
-			<el-menu-item index="/element/notification">
-				<span slot="title">Notification</span>
-			</el-menu-item>
-			<el-menu-item index="/element/menu">
-				<span slot="title">NavMenu</span>
-			</el-menu-item>
-			<el-menu-item index="/element/tabs">
-				<span slot="title">Tabs</span>
-			</el-menu-item>
-			<el-menu-item index="/element/breadcrumb">
-				<span slot="title">Breadcrumb</span>
-			</el-menu-item>
-			<el-menu-item index="/element/dropdown">
-				<span slot="title">Dropdown</span>
-			</el-menu-item>
-			<el-menu-item index="/element/steps">
-				<span slot="title">Steps</span>
-			</el-menu-item>
-			<el-menu-item index="/element/dialog">
-				<span slot="title">Dialog</span>
-			</el-menu-item>
-			<el-menu-item index="/element/tooltip">
-				<span slot="title">Tooltip</span>
-			</el-menu-item>
-			<el-menu-item index="/element/popover">
-				<span slot="title">Popover</span>
-			</el-menu-item>
-			<el-menu-item index="/element/card">
-				<span slot="title">Card</span>
-			</el-menu-item>
-			<el-menu-item index="/element/carousel">
-				<span slot="title">Carousel</span>
-			</el-menu-item>
-			<el-menu-item index="/element/collapse">
-				<span slot="title">Collapse</span>
-			</el-menu-item>
-			<el-menu-item index="/element/timeline">
-				<span slot="title">Timeline</span>
-			</el-menu-item>
-		</el-submenu>
-
-
-
-		<div class="el-menu-item-group__title"><span>Components</span></div>
-		<el-submenu index="tables" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-table"></i><span>Tables</span>
-			</template>
-			<el-menu-item index="/tables/simple-table">
-				<span slot="title">Table</span>
-			</el-menu-item>
-			<el-menu-item index="/tables/tui-grid">
-				<span slot="title">TUI Grid</span>
-			</el-menu-item>
-			<el-menu-item index="/tables/styled-table">
-				<span slot="title">Element Styled</span>
-			</el-menu-item>
-			<el-menu-item index="/tables/table-element">
-				<span slot="title">Element UI Table</span>
-			</el-menu-item>
-		</el-submenu>
-		<el-submenu index="maps" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-map-marker-radius"></i><span>Maps</span>
-			</template>
-			<el-menu-item index="/maps/gmaps">
-				<span slot="title">G Maps</span>
-			</el-menu-item>
-			<el-menu-item index="/maps/leaflet">
-				<span slot="title">Leaflet</span>
-			</el-menu-item>
-			<el-menu-item index="/maps/mapbox">
-				<span slot="title">Mapbox</span>
-			</el-menu-item>
-			<el-menu-item index="/maps/datamaps">
-				<span slot="title">Datamaps</span>
-			</el-menu-item>
-		</el-submenu>
-		<el-submenu index="editors" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-pencil-box"></i><span>Editors</span>
-			</template>
-			<el-menu-item index="/editors/quill">
-				<span slot="title">Quill</span>
-			</el-menu-item>
-			<el-menu-item index="/editors/pell">
-				<span slot="title">Pell</span>
-			</el-menu-item>
-			<el-menu-item index="/editors/code">
-				<span slot="title">Code</span>
-			</el-menu-item>
-			<el-menu-item index="/editors/markdown">
-				<span slot="title">Markdown</span>
-			</el-menu-item>
-		</el-submenu>
-		<el-submenu index="charts" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-chart-areaspline"></i><span>Charts</span>
-			</template>
-			<el-menu-item index="/charts/vuebars">
-				<span slot="title">Vue Bars</span>
-			</el-menu-item>
-			<el-menu-item index="/charts/vuetrend">
-				<span slot="title">Vue Trend</span>
-			</el-menu-item> -->
-
-			<!--<el-menu-item index="/charts/vued3network">
-				<span slot="title">Vue D3 Network</span>
-			</el-menu-item>-->
-
-			<!-- <el-menu-item index="/charts/vuevis">
-				<span slot="title">Vue Vis</span>
-			</el-menu-item>
-			<el-menu-item index="/charts/vuechartist">
-				<span slot="title">Vue Chartist</span>
-			</el-menu-item>
-			<el-menu-item index="/charts/vuechartkick">
-				<span slot="title">Vue Chartkick</span>
-			</el-menu-item>
-			<el-menu-item index="/charts/bulmachartjs">
-				<span slot="title">Bulma Chartjs</span>
-			</el-menu-item>
-			<el-menu-item index="/charts/peity">
-				<span slot="title">Peity</span>
-			</el-menu-item> -->
-
-			<!--<el-menu-item index="/charts/plotly">
-				<span slot="title">Plotly</span>
-			</el-menu-item>-->
-
-			<!-- <el-menu-item index="/charts/echarts">
-				<span slot="title">Echarts</span>
-			</el-menu-item>
-		</el-submenu> -->
-
-
-
-		<!-- <div class="el-menu-item-group__title"><span>Pages</span></div>
-		<el-menu-item index="/profile">
-			<i class="mdi mdi-card-account-details"></i><span slot="title">Profile</span>
-		</el-menu-item>
-		<el-submenu index="authentication" popper-class="main-navigation-submenu">
-			<template slot="title">
-				<i class="mdi mdi-lock"></i><span>Authentication</span>
-			</template>
-			<el-menu-item index="/logout">
-				<span slot="title">Login</span>
-			</el-menu-item>
-			<el-menu-item index="/login2">
-				<span slot="title">Login 2</span>
-			</el-menu-item>
-			<el-menu-item index="/register">
-				<span slot="title">Register</span>
-			</el-menu-item>
-			<el-menu-item index="/forgot-password">
-				<span slot="title">Forgot Password</span>
-			</el-menu-item>
-		</el-submenu>
-		<el-menu-item index="/invoice">
-			<i class="mdi mdi-file-document"></i><span slot="title">Invoice</span>
-		</el-menu-item>
-		<el-menu-item index="/404">
-			<i class="mdi mdi-alert-octagon"></i><span slot="title">404</span>
-		</el-menu-item> -->
-
 	</el-menu>
+
+	<el-menu
+	:mode="mode"
+	@select="profileModal"
+	:collapse="isCollapse"
+	:unique-opened="true"
+	background-color="transparent"
+	class="main-navigation-menu"
+	:class="{'nav-collapsed':isCollapse}"
+	style="position:fixed;right:0;margin-right:50px">
+		<!-- <el-menu-item>
+			<i></i><span slot="title">LOGIN</span>
+		</el-menu-item> -->
+		<el-menu-item>
+			<i class= "mdi mdi-account-circle"></i><span slot="title">{{this.profile_name}}</span>
+		</el-menu-item>
+	</el-menu>
+
+	<b-modal id="Profile_Modal"
+		 v-model="profileToggle"
+		 size="sm"
+		 ok-title="Ok"
+		 @ok="handleOk">
+
+		 <template v-if="errorAlert">
+			<b-row>
+				<b-col sm="12">
+					<b-alert show variant="danger">{{errorMessage}}</b-alert>
+				</b-col>
+			</b-row>
+		</template>
+
+		 <img class="image-logo" src="@/assets/images/logo.png" alt="logo" style="width:50%; margin-left:25%; margin-bottom:20%; margin-top:10%"/>
+		 <float-label class="styled">
+			 <input type="user name" placeholder="User Name" maxlength="100" v-model="userName">
+		 </float-label>
+		 <float-label class="styled">
+			 <input type="password" placeholder="Password" maxlength="100" v-model="password">
+		 </float-label>
+
+	 </b-modal>
+
+	 <b-modal id="Logout_Modal"
+ 		 v-model="logoutToggle"
+ 		 size="sm"
+ 		 ok-title="Ok"
+ 		 @ok="handleLogout">
+
+ 		 <img class="image-logo" src="@/assets/images/logo.png" alt="logo" style="width:50%; margin-left:25%; margin-bottom:20%; margin-top:10%"/>
+ 		 <div>Logout?</div>
+
+ 	 </b-modal>
+
+</div>
+
 </template>
 
 
 <script>
-import { detect } from 'detect-browser'
+import { detect } from 'detect-browser';
+import axios from "axios";
 import { saveUserDataInSession2, getUserDataInSession2 } from '../utils';
 const browser = detect()
 
 export default {
 	name: 'Nav',
+
 	props: ['mode', 'isCollapse'],
 	data() {
 		return {
+			profile_name: '',
 			roleSuperAdmin:false,
 			userRole:'',
 			isIe: true,
 			isEdge: true,
-			activeLink: null
+			activeLink: null,
+			profileToggle: false,
+			logoutToggle: false,
+			userName:'',
+			password:'',
+			errorAlert: false,
+			errorMessage: ''
 		}
 	},
 	methods: {
@@ -474,10 +137,116 @@ export default {
 				this.$router.push(index)
 				this.$emit('push-page', {page:index})
 			}
+		},
+		profileModal(){
+			if ( getUserDataInSession2('UserRole') == "0" || getUserDataInSession2('UserRole') == '' || getUserDataInSession2('UserRole') == undefined) {
+				this.profileToggle = true
+			} else {
+				this.logoutToggle = true
+			}
 
 		},
 		setLink(path) {
 			this.activeLink = path
+		},
+		handleOk(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault()
+      // Trigger submit handler
+      this.login()
+    },
+		login(){
+				if (this.userName === '') {
+					// this.profileToggle = true;
+					// this.$refs['Profile_Toggle'].show()
+					this.errorMessage = 'Username tidak boleh kosong';
+					this.errorAlert = true;
+					setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+				}
+				else if (this.password === '') {
+					// this.profileToggle = true;
+					// this.$refs['Profile_Toggle'].show()
+					this.errorMessage = 'Password tidak boleh kosong';
+					this.errorAlert = true;
+					setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+				}
+				else {
+					var headers = {
+						'Content-Type': 'application/json'
+					}
+					axios.post(`http://127.0.0.1:5000/api/v1/login`,{
+									username: this.userName,
+									password: this.password
+								}, headers
+						).then(response => {
+						console.log("response not error")
+						console.log(response)
+		        if (response.status === 200) {
+							console.log("status = 200 ")
+							console.log("response.data: " + response.data)
+							if (response.data !== null) {
+								console.log("ROLE: " + response.data.user_role)
+								// saveUserDataInSession2('UserInfo',response.data.data)
+								saveUserDataInSession2('UserName',response.data.username);
+								saveUserDataInSession2('UserRole',response.data.user_role);
+								saveUserDataInSession2('UserId',response.data.user_id);
+								saveUserDataInSession2('token',response.data.token);
+								window.location.reload();
+							} else {
+								this.errorMessage = response.data.message
+								this.errorAlert = true
+								setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+							}
+						} else if (error.response.data.code === 502){
+							console.log("response not error + 502")
+							this.errorMessage = 'Bad Gateway, Server Sedang Bermasalah'
+							this.errorAlert = true
+							setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+						} else {
+							// console.log(response.data)
+							this.errorMessage = response.status
+							this.errorAlert = true
+							setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+							}
+		        }).catch((error) => {
+							console.log("catch error")
+							console.log("error: " + error.response)
+			        if (error.response !== undefined) {
+								console.log("error defined")
+			          if (error.response.status === 401) {
+									this.errorMessage = error.response
+									this.errorAlert = true
+									setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+			          } else if (error.response.status === 400){
+									this.errorMessage = error.response
+									this.errorAlert = true
+									setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+			          } else if (error.response.status === 502){
+									this.errorMessage = 'Bad Gateway, Server Sedang Bermasalah'
+									this.errorAlert = true
+									setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+			          } else {
+									this.errorMessage = error.response
+									this.errorAlert = true
+									setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+								}
+			        } else {
+								console.log("error undefined")
+								this.errorMessage = 'Server Sedang Bermasalah'
+								this.errorAlert = true
+								setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+			          // this.serverError = true;
+			        }
+			      });
+				}
+		},
+		handleLogout(){
+			// localStorage.removeItem(['UserName','UserRole','token'])
+			localStorage.removeItem('UserName')
+			localStorage.removeItem('UserRole')
+			localStorage.removeItem('UserId')
+			localStorage.removeItem('token')
+			window.location.reload();
 		}
 	},
 	created() {
@@ -492,15 +261,13 @@ export default {
 		//console.log('this.$router.currentRoute.path', this.$router.currentRoute.path)
 	},
 	mounted() {
-		//console.log('nav component mounted')
-		// this.userRole =
-		// console.log('in Dashboard + ' + getUserDataInSession2('userRole'))
-		if (String(getUserDataInSession2('userRole')) === '"System Administrator"') {
-			this.roleSuperAdmin = true;
-			// console.log("berhasil")
+		console.log("userRole: " + getUserDataInSession2('UserRole'))
+
+		if (getUserDataInSession2('UserRole') == "0") {
+			this.profile_name = "PROFILE"
+		} else {
+			this.profile_name = String(getUserDataInSession2('UserName').replace(/\"/gi, ''))
 		}
-		// this.roleSuperAdmin = true;
-		// console.log(this.roleSuperAdmin)
 	}
 }
 </script>
