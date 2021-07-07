@@ -122,7 +122,7 @@
 
 <script>
 import axios from "axios";
-// import {getToken, getUserDataInSession2, BASE_URL} from '../../utils';
+import {getToken, getUserDataInSession2, BASE_URL, checkUser} from '../../utils';
 export default {
 	name: 'LayoutSidebarRight',
   computed : {
@@ -133,7 +133,8 @@ export default {
 	data() {
 		return {
 			list : ['test1', 'test2', 'test3'],
-      user_id : 2,
+      user_id : '',
+			user_role : '',
       contentList : [],
       TitleContent : "",
       Longitude : "",
@@ -175,18 +176,27 @@ export default {
       Content: '',
       titlePlaceholder: "Title",
       dialogPlaceholder: "Write Something....",
+			token: 0,
 			sidebarOpen: false
 		}
 	},
   mounted() {
-    this.getData()
+		checkUser()
+		this.getData()
+		this.user_role = getUserDataInSession2('UserRole')
+		console.log('user_role: ' + this.user_role)
   },
   methods : {
     getData() {
-      // this.token = getToken()
+			if (this.user_role == 0){
+				this.token = '0'
+			}
+			else {
+				this.token = getToken()
+			}
       var headers = {
         'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${this.token}`
+        'Authorization': `Bearer ${this.token}`
       }
       // axios.get(`${BASE_URL}/companies?page=${this.currentPage}&size=${this.perPage}`,{
       axios.get(`http://127.0.0.1:5000/api/v1/contentList`,{
@@ -220,9 +230,9 @@ export default {
       // }
       var headers = {
         'Content-Type': 'multipart/form-data',
-        // 'Authorization': `Bearer ${this.token}`
+        'Authorization': `Bearer ${this.token}`
       };
-      axios.post(`http://127.0.0.1:5000/api/v1/postContent/${this.user_id}`,
+      axios.post(`http://127.0.0.1:5000/api/v1/postContent`,
         formData,{headers}).then((response) => {
         // console.log(response.data.result)
         if (response.status === 200) {
@@ -272,10 +282,17 @@ export default {
         this.image = this.$refs.image.files[0];
         // this.$refs.file.files = null;
       }
-      console.log("this type : ", type)
-      console.log("image: ", this.image)
-      console.log("file: ", this.file)
+      // console.log("this type : ", type)
+      // console.log("image: ", this.image)
+      // console.log("file: ", this.file)
     },
+		// checkUser(){
+		// 	this.token = getToken()
+		// 	if (this.token == null || this.token == ''){
+		// 		saveUserDataInSession2('UserName','Visitor')
+		// 		saveUserDataInSession2('UserId','0')
+		// 	}
+		// },
     checkBeforeSubmit(){
       if (this.TitleContent == "") {
         this.AlertMassage = "Please Fill the Title"
