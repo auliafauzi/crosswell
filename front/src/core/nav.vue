@@ -41,6 +41,9 @@
 	<el-menu-item index="/home">
 		<i class="mdi mdi-bookshelf"></i><span slot="title">Home</span>
 	</el-menu-item>
+	<el-menu-item index="/map">
+		<i class="mdi mdi-earth"></i><span slot="title">Map</span>
+	</el-menu-item>
 
 
 	</el-menu>

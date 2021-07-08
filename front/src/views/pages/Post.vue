@@ -21,9 +21,12 @@
 				<!-- <div style=" max-width: 1100px; margin: 0 auto; "> -->
 				<!-- <div style=" max-width: 11000px;"> -->
         <div>
-          <p style="font-size: 10px;">
-            {{this.content.user_id}}
+          <p style="font-size: 12px;">
+            {{this.content.user_name}}
           <p>
+						<p style="font-size: 8px;">
+	            {{this.content.date}}
+	          <p>
 					<!-- <p class="mt-18">
 						<img src="@/assets/images/photo1.jpg" class="demo-img" alt="demo image">
 					</p> -->
@@ -49,7 +52,7 @@
       <div class="box grow card-base card-shadow--small p-24" style= "margin-bottom: 10px; margin-top: 10px; margin-left: 70px; margin-right: 300px;" v-for="i in commentList">
 				<div style=" max-width: 1100px;">
           <p style="font-size: 10px;">
-            {{i.user_id}}
+            {{i.user_name}}
           <p>
           <p style="font-size: 10px;">
             {{i.date}}

@@ -27,6 +27,7 @@ import NotFound from '../views/pages/NotFound.vue'
 // import WhiteList from '../views/pages/WhiteList.vue'
 import Home from '../views/pages/Home.vue'
 import Post from '../views/pages/Post.vue'
+import Map from '../views/pages/Map.vue'
 
 
 //ui
@@ -86,6 +87,15 @@ const router = new Router({
         const id = Number.parseInt(route.params.id);
         return { id }
       },
+		},
+		{
+			path: '/map',
+			name: 'map',
+			component: Map,
+			meta: {
+				layout: layouts.navTop,
+				searchable: true
+			}
 		},
 
 

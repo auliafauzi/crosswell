@@ -10,16 +10,16 @@
 			</el-breadcrumb>
 		</div>
 		<div class="card-base card-shadow--medium">
-			<VuePellEditor 
-				:actions="editorOptions" 
-				:content="editorContent" 
+			<VuePellEditor
+				:actions="editorOptions"
+				:content="editorContent"
 				:placeholder="editorPlaceholder"
 				v-model="editorContent"
 				:styleWithCss="false"
 				editorHeight="400px"
 			/>
 		</div>
-		
+
 		<h4><a href="https://github.com/CinKon/vue-pell-editor" target="_blank"><i class="mdi mdi-link-variant"></i> reference</a></h4>
 	</div>
 </template>
@@ -68,4 +68,3 @@ export default {
 
 <style lang="scss">
 </style>
-
