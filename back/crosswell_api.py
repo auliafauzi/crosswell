@@ -48,6 +48,8 @@ def contentList():
 	bearer = headers.get('Authorization')    # Bearer YourTokenHere
 	token = bearer.split()[1]  # YourTokenHere
 	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('user_less',token, None))
+	if userLess == []:
+		return jsonify({"code":500,"status":"failed","message":"You have no permission to access"})
 	contentList = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('contentList',None, None))
 	for i in contentList :
 		zipped = dict(zip(util.data_structure['content'], i))
@@ -88,11 +90,9 @@ def postContet():
 	bearer = headers.get('Authorization')    # Bearer YourTokenHere
 	token = bearer.split()[1]  # YourTokenHere
 	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('user_less',token, None))
+	if userLess == []:
+		return jsonify({"code":500,"status":"failed","message":"You have no permission to access"})
 	user_id  = userLess[0][0]
-	# methods1 = 'get'
-	# query1 = "select content_id from cms.content"
-	# maxnum = util.getMax(util.connectToPostgres(methods1,config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,query1))
-	# new_content_id = "p" + str(int(maxnum[0])+1)
 	new_content_id = "p" + str(util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('next_id','content_id','content'))[0][0])
 	###
 	context = request.get_data()
@@ -125,10 +125,15 @@ def postContet():
 	result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,new_content,util.insertQuery("cms.content", new_content))
 	return jsonify({"new_content_id":new_content_id,"title":title,"content":content,"new_content":new_content,"result_push":result_push,"code":200})
 
-@app.route('/api/v1/postComment/<string:user_id>/<string:parent_id>', methods= ['POST'])
-def postComment(user_id, parent_id):
-	# context = request.get_data()
-	# comment = request.form['comment']
+@app.route('/api/v1/postComment/<string:parent_id>', methods= ['POST'])
+def postComment(parent_id):
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')
+	token = bearer.split()[1]
+	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('user_less',token, None))
+	if userLess == []:
+		return jsonify({"code":500,"status":"failed","message":"You have no permission to access"})
+	user_id = userLess[0][0]
 	comment = request.json['comment']
 	print(comment)
 	new_coment_id = "c" + str(util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('next_id','comment_id','comment'))[0][0])
@@ -152,5 +157,61 @@ def login():
 			data_to_push = [new_token,(datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")] #PREPARE DATA TO PUSH [NEWTOKEN,NEW-TOKEN-EXPIRED-DATETIME]
 			result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,data_to_push,util.updateQueryWithColumn("cms.user", data_to_push, ['token', 'token_expired'], "user_id", login_result[0][2]))
 			return jsonify({"username":username,"user_role":login_result[0][3], "user_id":login_result[0][2],"token": new_token})
+
+@app.route('/api/v1/editContent', methods= ['POST'])
+def editContent():
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')
+	token = bearer.split()[1]
+	content_id = request.json['content_id']
+	content = request.json['content']
+	checkAuth = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('checkAuthority',[token,content_id,'content_id','content'],None))
+	if checkAuth == [] :
+		return jsonify({"code":500,"status":"failed","message":"You have no permission to access this content"})
+	else :
+		data_to_push = [content]
+		result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.updateQueryWithColumn('cms.content', data_to_push, ['content'],'content_id',content_id))
+		return jsonify({"code":200,"status":"success","content_id":content_id,"content":content,"message":"Update content is success","message2":result_push})
+
+@app.route('/api/v1/deleteContent', methods= ['DELETE'])
+def deleteContent():
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')
+	token = bearer.split()[1]
+	content_id = request.json['content_id']
+	checkAuth = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('checkAuthority',[token,content_id,'content_id','content'],None))
+	if checkAuth == [] :
+		return jsonify({"code":500,"status":"failed","message":"You have no permission to access this content"})
+	else :
+		result_delete = util.connectToPostgres("delete",config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('delete_data',['cms.content','content_id',content_id],None))
+		return jsonify({"code":200,"status":"success","content_id":content_id,"message":"Delete content is success","message2":result_delete})
+
+@app.route('/api/v1/editComment', methods= ['POST'])
+def editComment():
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')
+	token = bearer.split()[1]
+	comment_id = request.json['comment_id']
+	comment = request.json['comment']
+	checkAuth = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('checkAuthority',[token,comment_id,'comment_id','comment'],None))
+	if checkAuth == [] :
+		return jsonify({"code":500,"status":"failed","message":"You have no permission to access this comment"})
+	else :
+		data_to_push = [comment]
+		result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.updateQueryWithColumn('cms.comment', data_to_push, ['comment'],'comment_id',comment_id))
+		return jsonify({"code":200,"status":"success","comment_id":comment_id,"comment":comment,"message":"Update comment is success","message2":result_push})
+
+@app.route('/api/v1/deleteComment', methods= ['DELETE'])
+def deleteComment():
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')
+	token = bearer.split()[1]
+	comment_id = request.json['comment_id']
+	checkAuth = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('checkAuthority',[token,comment_id,'comment_id','comment'],None))
+	if checkAuth == [] :
+		return jsonify({"code":500,"status":"failed","message":"You have no permission to access this comment"})
+	else :
+		result_delete = util.connectToPostgres("delete",config['targethostname'],config['targetdatabase'],config['targetusername'],None,None,util.query('delete_data',['cms.comment','comment_id',comment_id],None))
+		return jsonify({"code":200,"status":"success","comment_id":comment_id,"message":"Delete comment is success","message2":result_delete})
 
 app.run()
