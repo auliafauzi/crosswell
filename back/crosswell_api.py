@@ -195,9 +195,14 @@ def deleteContent(content_id):
 	bearer = headers.get('Authorization')
 	token = bearer.split()[1]
 	# content_id = request.json['content_id']
+	checkAdmin = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('check_admin',token,None))
 	checkAuth = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('checkAuthority',[token,content_id,'content_id','content'],None))
 	if checkAuth == [] :
-		return jsonify({"code":500,"status":"failed","message":"You have no permission to access this content"})
+		if checkAdmin[0][0] == "1" :
+			result_delete = util.connectToPostgres("delete",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('delete_data',['cms.content','content_id',content_id],None))
+			return jsonify({"code":200,"status":"success","content_id":content_id,"message":"Delete content is success","message2":result_delete})
+		else :
+			return jsonify({"code":500,"status":"failed","message":"You have no permission to access this content", "checkAdmin":checkAdmin[0][0]})
 	else :
 		result_delete = util.connectToPostgres("delete",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('delete_data',['cms.content','content_id',content_id],None))
 		return jsonify({"code":200,"status":"success","content_id":content_id,"message":"Delete content is success","message2":result_delete})

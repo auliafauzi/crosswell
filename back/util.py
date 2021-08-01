@@ -31,6 +31,8 @@ def query(param1, param2,param3) :
 		return "select token, token_expired, user_id, user_role, case when now() < token_expired then 'true' else 'false' end as status from cms.user where user_name ='"+param2+"' and password ='"+param3+"';"
 	elif param1 == 'push_new_token':
 		return 'a'
+	elif param1 == 'check_admin':
+		return "select user_role from cms.user where token= '" + param2 +  "';"
 	elif param1 == 'checkAuthority':
 		return "select c."+param2[2]+"  from cms."+param2[3]+" c  left join cms.user u on c.user_id = u.user_id where u.token = '"+param2[0]+"' and c."+param2[2]+" = '"+param2[1]+"'"
 	elif param1 == 'delete_data':
