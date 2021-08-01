@@ -17,7 +17,7 @@
       </b-row>
     </template>
 
-			<div class="box grow card-base card-shadow--small p-24" style= "margin-bottom: 20px; margin-left: 50px; margin-right: 300px; background: rgba(95, 143, 223, 0.2);">
+			<div class="box grow card-base card-shadow--small p-24" style= "white-space: pre-line; margin-bottom: 20px; margin-left: 50px; margin-right: 300px; background: rgba(95, 143, 223, 0.2);">
 				<!-- <div style=" max-width: 1100px; margin: 0 auto; "> -->
 				<!-- <div style=" max-width: 11000px;"> -->
         <div>
@@ -31,9 +31,20 @@
 						<img src="@/assets/images/photo1.jpg" class="demo-img" alt="demo image">
 					</p> -->
 					<h1 class="mt-8">{{this.content.title}}</h1>
-					<img v-if="this.content.image_path != '' " :src="this.ImagePath"/>
+					<p style="font-size: 8px;">
+						{{this.content.lat}} {{this.content.long}}
+					<p>
+					<div v-if="this.content.image_path != null">
+						<img v-if="this.content.image_path !=''" :src="this.ImagePath"/>
+					</div>
 					<p class="mt-0">
 						{{this.content.content}}
+					</p>
+					<!-- <div/> -->
+					<p class="mt-0" v-if="this.content.file_path != null">
+						<h4 v-if="this.content.file_path != ''" style="text-decoration: underline;font-style: italic;cursor: pointer; font-size: 15px" @click="getFile()">
+							Get the file
+						</h4>
 					</p>
 
 				</div>
@@ -45,7 +56,7 @@
           <b-button variant="outline-primary" size="sm" class="mr-1" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
             Edit Post
           </b-button>
-          <b-button variant="outline-danger" size="sm" class="mr-1" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
+          <b-button variant="outline-danger" size="sm" class="mr-1" @click="deletePost()" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
             Delete Post
           </b-button>
       </div>
@@ -81,14 +92,20 @@
 
        <div class="page-quill scrollable">
      		<div class="card-base card-shadow--medium">
-     			<VuePellEditor
+     			<!-- <VuePellEditor
      				:actions="dialogOptions"
      				:content="dialogComment"
      				:placeholder="dialogPlaceholder"
      				v-model="comment"
      				:styleWithCss="false"
      				editorHeight="400px"
-     			/>
+     			/> -->
+					<b-form-textarea
+			      id="textarea"
+			      v-model="comment"
+			      placeholder="Post something..."
+			      rows="19"
+			    ></b-form-textarea>
      		</div>
      	</div>
 		</b-modal>
@@ -113,6 +130,8 @@ export default {
       commentModalToggle : false,
 			SuccessToogle : false,
 			AlertToggle : false,
+			SuccessMassage:'',
+			AlertMassage:'',
       tango : true,
 			sidebarOpen: false,
 			dialogComment: '',
@@ -129,7 +148,7 @@ export default {
       dialogPlaceholder: "Write Something...",
 			image : null,
 			eligible : undefined,
-			ImagePath: "http://127.0.0.1:5000/api/v1/contentImage/" + this.$route.params.id
+			ImagePath: BASE_URL + "/api/v1/contentImage/" + this.$route.params.id
 		}
 	},
 
@@ -149,11 +168,13 @@ export default {
 	 } catch(err) {
 		 console.log("err: ", err)
 	 }
-
+	 this.user_role = getUserDataInSession2('UserRole').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+	 this.token = getUserDataInSession2('token').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
    this.content_id = this.$route.params.id
-   console.log("yaa" + this.$route.params.id)
+   console.log("yaa " + this.$route.params.id)
    this.getData()
-	 console.log("gambar: " + "http://127.0.0.1:5000/api/v1/contentImage/" + this.$route.params.id)
+	 console.log("gambar: " + BASE_URL + "/api/v1/contentImage/" + this.$route.params.id)
+	 console.log("content mounted: ", this.content)
   },
   methods : {
     getData() {
@@ -162,7 +183,7 @@ export default {
         // 'Authorization': `Bearer ${this.token}`
       }
       // axios.get(`${BASE_URL}/companies?page=${this.currentPage}&size=${this.perPage}`,{
-      axios.get(`http://127.0.0.1:5000/api/v1/contentDetail/${this.$route.params.id}`,{
+      axios.get(`${BASE_URL}/api/v1/contentDetail/${this.$route.params.id}`,{
             headers
             },
         ).then(response => {
@@ -173,12 +194,14 @@ export default {
               setTimeout(() => {this.errorMessage= '',console.log(response.data.message),window.location.href = this.HomeLocation}, 2000);
             } else {
               this.content = response.data.content
-							this.eligible = response.data.eligible
+							// this.eligible = response.data.eligible
 							// console.log("eligible: ", this.eligible)
+							console.log("get data content: ", this.content)
+							console.log("repsonse: ", response.data.content)
             }
           }
         })
-        axios.get(`http://127.0.0.1:5000/api/v1/commentList/${this.$route.params.id}`,{
+        axios.get(`${BASE_URL}/api/v1/commentList/${this.$route.params.id}`,{
               headers
               },
           ).then(response => {
@@ -192,32 +215,16 @@ export default {
               }
             }
           })
-					// axios.get(`http://127.0.0.1:5000/api/v1/contentImage/${this.$route.params.id}`,{
-	        //       headers
-	        //       },
-	        //   ).then(response => {
-	        //     if (response.status === 200) {
-	        //       if (response.data.code === 401) {
-	        //         this.errorAlert = true;
-	        //         this.errorMessage = response.data.message;
-	        //         setTimeout(() => {this.errorMessage= '',console.log(response.data.message),window.location.href = this.HomeLocation}, 2000);
-	        //       } else {
-	        //         this.image = response.data
-					// 				console.log("image: " + this.image)
-	        //       }
-	        //     }
-	        //   })
-
 
     },
-		submitContent() {
+		submitComment() {
 			this.comment = this.comment.replace('<div>','');
       this.comment = this.comment.replace('</div>','');
       var headers = {
         'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${this.token}`
+        'Authorization': `Bearer ${this.token}`
       };
-      axios.post(`http://127.0.0.1:5000/api/v1/postComment/${this.user_id}/${this.$route.params.id}`,
+      axios.post(`${BASE_URL}/api/v1/postComment/${this.$route.params.id}`,
         {
 					comment: this.comment
 				},{headers}).then((response) => {
@@ -247,6 +254,17 @@ export default {
         }
       });
     },
+		getFile(){
+			var headers = {
+        // 'Content-Type': 'application/json',
+				// 'Content-Type': 'multipart/form-data'
+        // 'Authorization': `Bearer ${this.token}`
+      }
+			axios.get(`${BASE_URL}/api/v1/contentFile/${this.$route.params.id}`,{
+						responseType: 'blob'
+						},
+				)
+		},
     // goTo(content_id) {
     //   // this.postModalToggle = true
     //   console.log(content_id)
@@ -255,6 +273,38 @@ export default {
 		openPostCommentDialog() {
 			this.commentModalToggle = true
 		},
+		deletePost(){
+			this.token = getUserDataInSession2('token').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+			var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      };
+			console.log("going delete post; token: " , this.token)
+			axios.delete(`${BASE_URL}/api/v1/deleteContent/${this.$route.params.id}`, {headers}
+			).then((response) => {
+					if (response.status === 200) {
+						if (response.data.code === 200){
+							this.SuccessMassage == response.data.message
+							this.SuccessToogle == true
+							console.log(response.data.message)
+							setTimeout(() => {this.SuccessToogle = false, this.successMessage = '',this.$router.push("/home")}, 3000);
+						}
+						else {
+							this.AlertMassage == response.data.message
+							this.AlertToggle == true
+							setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 3000);
+							// console.log(response.data.message)
+						}
+					}
+					else {
+						// failed to get response
+						this.AlertMassage == "Internal server down"
+						this.AlertToggle == true
+						setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 3000);
+						// console.log("Internal server down")
+					}
+				})
+		},
 		checkBeforeSubmit(){
       if (this.comment == "") {
         this.AlertMassage = "Please Fill the Comment Field"
@@ -262,7 +312,7 @@ export default {
         setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 3000);
       }
       else {
-        this.submitContent()
+        this.submitComment()
       }
     }
   },

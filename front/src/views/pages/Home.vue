@@ -71,18 +71,40 @@
             Fill The Title
           </b-form-invalid-feedback>
             <h @click="openInsertToggle" style="cursor:pointer">Insert Coordinate</h>
-     			<VuePellEditor
+						<div></div>
+						<h @click="openImageToggle" style="cursor:pointer">Upload Image</h>
+						<div></div>
+						<h @click="openFileToggle" style="cursor:pointer">Upload File</h>
+     			<!-- <VuePellEditor
      				:actions="dialogOptions"
      				:content="dialogContent"
      				:placeholder="dialogPlaceholder"
      				v-model="Content"
      				:styleWithCss="false"
      				editorHeight="400px"
-     			/>
+     			/> -->
+					<b-form-textarea
+			      id="textarea"
+			      v-model="Content"
+			      placeholder="Post something..."
+			      rows="19"
+			    ></b-form-textarea>
+
      		</div>
      	</div>
 
     </b-modal>
+
+		<b-modal id="Please_Login_Modal"
+  		 v-model="pleaseLoginModalToggle"
+  		 size="sm"
+  		 :hide-footer="true"
+			 :hide-header="true">
+
+  		 <img class="image-logo" src="@/assets/images/logo.png" alt="logo" style="width:50%; margin-left:25%; margin-bottom:20%; margin-top:10%"/>
+  		 <div>Please Login First</div>
+
+  	 </b-modal>
 
     <b-modal id="UploadImageModal"
        title = "Upload Image"
@@ -107,14 +129,15 @@
        v-model="InsertCoornateToggle"
        size="sm"
        ok-title="Ok">
-       <b-form-input type="text"
-               placeholder="Longitude"
-               v-model="Longitude">
-       </b-form-input>
-       <b-form-input type="text"
-               placeholder="Latitude"
+			 <b-form-input type="text"
+               placeholder="Latitude (Decimal Degrees)"
                v-model="Latitude">
        </b-form-input>
+       <b-form-input type="text"
+               placeholder="Longitude (Decimal Degrees)"
+               v-model="Longitude">
+       </b-form-input>
+
     </b-modal>
 
 	</div>
@@ -142,11 +165,13 @@ export default {
       image :  "",
       file : "",
       postModalToggle : false,
+			pleaseLoginModalToggle : false,
       UploadImageToggle : false,
       UploadFileToggle : false,
       InsertCoornateToggle : false,
       SuccessToogle : false,
       AlertToggle : false,
+			token: '',
       SuccessMassage : "",
       AlertMassage : "",
       dialogContent: '',
@@ -182,24 +207,26 @@ export default {
 	},
   mounted() {
 		checkUser()
-		this.getData()
+		if (this.token != '') {
+				this.token = getToken().replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+		}
 		this.user_role = getUserDataInSession2('UserRole')
+		this.getData()
 		console.log('user_role: ' + this.user_role)
   },
   methods : {
     getData() {
+			console.log(this.token)
 			if (this.user_role == 0){
 				this.token = '0'
-			}
-			else {
-				this.token = getToken()
+				console.log("HEREEE")
 			}
       var headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.token}`
       }
       // axios.get(`${BASE_URL}/companies?page=${this.currentPage}&size=${this.perPage}`,{
-      axios.get(`http://127.0.0.1:5000/api/v1/contentList`,{
+      axios.get(`${BASE_URL}/api/v1/contentList`,{
             headers
             },
         ).then(response => {
@@ -215,6 +242,11 @@ export default {
         })
     },
     submitContent() {
+			this.token = getUserDataInSession2('token')
+			if (this.token != '') {
+					this.token = getToken().replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+			}
+			console.log("submit token :", this.token )
       // this.token = getToken()
       this.Content = this.Content.replace('<div>','');
       this.Content = this.Content.replace('</div>','');
@@ -232,7 +264,7 @@ export default {
         'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${this.token}`
       };
-      axios.post(`http://127.0.0.1:5000/api/v1/postContent`,
+      axios.post(`${BASE_URL}/api/v1/postContent`,
         formData,{headers}).then((response) => {
         // console.log(response.data.result)
         if (response.status === 200) {
@@ -268,11 +300,22 @@ export default {
       this.$router.push({name: 'post', params: { id: content_id } })
     },
     openPostContentDialog() {
-      this.postModalToggle = true;
+			if (this.user_role == 0) {
+				this.pleaseLoginModalToggle = true;
+			}
+			else {
+				this.postModalToggle = true;
+			}
     },
     openInsertToggle() {
       this.InsertCoornateToggle = true;
     },
+		openImageToggle() {
+      this.UploadImageToggle = true;
+    },
+		openFileToggle(){
+			this.UploadFileToggle = true;
+		},
     handleFileUpload(type){
       if (type == 'file'){
         this.file = this.$refs.file.files[0];

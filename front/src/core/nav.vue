@@ -44,6 +44,9 @@
 	<el-menu-item index="/map">
 		<i class="mdi mdi-earth"></i><span slot="title">Map</span>
 	</el-menu-item>
+	<!-- <el-menu-item index="/leaflet">
+		<i class="mdi mdi-earth"></i><span slot="title">Leaflet</span>
+	</el-menu-item> -->
 
 
 	</el-menu>
@@ -108,7 +111,7 @@
 <script>
 import { detect } from 'detect-browser';
 import axios from "axios";
-import { saveUserDataInSession2, getUserDataInSession2 } from '../utils';
+import { saveUserDataInSession2, getUserDataInSession2, BASE_URL } from '../utils';
 const browser = detect()
 
 export default {
@@ -177,24 +180,34 @@ export default {
 					var headers = {
 						'Content-Type': 'application/json'
 					}
-					axios.post(`http://127.0.0.1:5000/api/v1/login`,{
+					axios.post(`${BASE_URL}/api/v1/login`,{
 									username: this.userName,
 									password: this.password
 								}, headers
 						).then(response => {
-						console.log("response not error")
-						console.log(response)
+						// console.log("response not error")
+						// console.log(response)
 		        if (response.status === 200) {
 							console.log("status = 200 ")
-							console.log("response.data: " + response.data)
+							// console.log("response.data: " + response.data)
 							if (response.data !== null) {
-								console.log("ROLE: " + response.data.user_role)
-								// saveUserDataInSession2('UserInfo',response.data.data)
-								saveUserDataInSession2('UserName',response.data.username);
-								saveUserDataInSession2('UserRole',response.data.user_role);
-								saveUserDataInSession2('UserId',response.data.user_id);
-								saveUserDataInSession2('token',response.data.token);
-								window.location.reload();
+								// console.log("ROLE: " + response.data.user_role)
+								if (response.data.rc == 102) {
+									this.errorMessage = "User tidak ditemukan/password salah"
+									this.errorAlert = true
+									setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+								} else if (response.data.code == 200 ){
+									// saveUserDataInSession2('UserInfo',response.data.data)
+									saveUserDataInSession2('UserName',response.data.username);
+									saveUserDataInSession2('UserRole',response.data.user_role);
+									saveUserDataInSession2('UserId',response.data.user_id);
+									saveUserDataInSession2('token',response.data.token);
+									setTimeout(() => window.location.reload(), 3000)
+								} else {
+									this.errorMessage = "Server Error (undefined rc)"
+									this.errorAlert = true
+									setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+								}
 							} else {
 								this.errorMessage = response.data.message
 								this.errorAlert = true

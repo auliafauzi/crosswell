@@ -1,6 +1,7 @@
 import router from './router/index';
 
-export const BASE_URL = 'https://antares.pede.id/sg-web-service/v1';
+// export const BASE_URL = 'http://127.0.0.1:5000';
+export const BASE_URL = 'http://159.89.105.228:5000';
 
 export const TOKEN_KEY = 'token';
 

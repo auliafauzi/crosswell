@@ -28,6 +28,7 @@ import NotFound from '../views/pages/NotFound.vue'
 import Home from '../views/pages/Home.vue'
 import Post from '../views/pages/Post.vue'
 import Map from '../views/pages/Map.vue'
+import Leaflet from '../views/pages/Leaflet.vue'
 
 
 //ui
@@ -92,6 +93,15 @@ const router = new Router({
 			path: '/map',
 			name: 'map',
 			component: Map,
+			meta: {
+				layout: layouts.navTop,
+				searchable: true
+			}
+		},
+		{
+			path: '/leaflet',
+			name: 'leaflet',
+			component: Leaflet,
 			meta: {
 				layout: layouts.navTop,
 				searchable: true
