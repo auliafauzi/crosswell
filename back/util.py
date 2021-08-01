@@ -23,6 +23,8 @@ def query(param1, param2,param3) :
 		return "select count(comment_id) from cms.comment where parent_id = " + param2
 	elif param1 == 'get_image_path' :
 		return "select image_path from cms.content where content_id = '" + param2 + "';"
+	elif param1 == 'get_file_path' :
+		return "select file_path from cms.content where content_id = '" + param2 + "';"
 	elif param1 == 'user_less' :
 		return "select user_id, user_name, user_role, token_expired from cms.user where token = '" + param2 + "';"
 	elif param1 == 'login':
@@ -40,7 +42,7 @@ def connectToPostgres(methods, targethostname, targetdatabase, targetusername, t
 	body = None
 	try :
 		conn = None
-		conn = psycopg2.connect(host=targethostname, database=targetdatabase, user= targetusername)
+		conn = psycopg2.connect(host=targethostname, database=targetdatabase, user= targetusername, password=targetpassword)
 		cur = conn.cursor()
 		if methods == 'get':
 			cur.execute(query)
