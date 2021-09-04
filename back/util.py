@@ -37,6 +37,8 @@ def query(param1, param2,param3) :
 		return "select c."+param2[2]+"  from cms."+param2[3]+" c  left join cms.user u on c.user_id = u.user_id where u.token = '"+param2[0]+"' and c."+param2[2]+" = '"+param2[1]+"'"
 	elif param1 == 'delete_data':
 		return "delete from "+param2[0]+" where "+param2[1]+" = '"+ param2[2] + "';"
+	elif param1 == 'check_user_exist':
+		return "select * from cms.user where user_name= '" + param2[0] + "';"
 	else :
 		return
 
@@ -97,11 +99,28 @@ def insertQueryWithColumn(tablename, data, targetcol):
 		else :
 			query = query + targetcol[i] + ","
 	query = query + "VALUES ("
-	for i in range(len(targetcol)) :
-		if i == len(targetcol)-1 :
-			query = query + "%s);"
+	for i in range(len(data)) :
+		if i == len(data)-1 :
+			query = query + "%s);" 
 		else :
 			query = query + "%s,"
+	return query
+
+def insertQueryWithColumn2(tablename, data, targetcol):
+	query = "INSERT INTO %s (" % tablename
+	for i in range(len(targetcol)) :
+		if i == len(targetcol)-1 :
+			query = query + targetcol[i] + ") "
+		else :
+			query = query + targetcol[i] + ","
+	query = query + "VALUES ("
+	for i in range(len(data)) :
+		if i == len(data)-1 :
+			# query = query + "%s);"
+			query = query + "'" + data[i] + "');"
+		else :
+			# query = query + "%s,"
+			query = query + "'" + data[i] + "',"
 	return query
 
 def updateQueryWithColumn(tablename, data, targetcol, targetrow, value_target):
