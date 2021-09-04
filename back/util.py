@@ -7,7 +7,8 @@ import secrets
 data_structure = {
 	'content' : ['content_id', 'title', 'content', 'user_id','user_name','long','lat','image_path','file_path', 'date', 'count_comment'],
 	'comment' : ['comment_id', 'comment', 'user_id', 'user_name', 'parent_id','date'],
-	'userLess' : ['user_id', 'user_name', 'role_id', 'token_expired' ]
+	'userLess' : ['user_id', 'user_name', 'role_id', 'token_expired' ],
+	'userMore' : ['user_id','user_name','role_description', 'date_created','email','status']
 } 
 
 def query(param1, param2,param3) :
@@ -27,8 +28,10 @@ def query(param1, param2,param3) :
 		return "select file_path from cms.content where content_id = '" + param2 + "';"
 	elif param1 == 'user_less' :
 		return "select user_id, user_name, user_role, token_expired from cms.user where token = '" + param2 + "';"
+	elif param1 == 'user_more' :
+		return "select a.user_id, a.user_name, b.role_description, a.date_created, a.email, a.status from cms.user a left join cms.role b on a.user_role = b.role_id;"
 	elif param1 == 'login':
-		return "select token, token_expired, user_id, user_role, case when now() < token_expired then 'true' else 'false' end as status from cms.user where user_name ='"+param2+"' and password ='"+param3+"';"
+		return "select token, token_expired, user_id, user_role, case when now() < token_expired then 'true' else 'false' end as status from cms.user where status = 'active' and user_name ='"+param2+"' and password ='"+param3+"';"
 	elif param1 == 'push_new_token':
 		return 'a'
 	elif param1 == 'check_admin':

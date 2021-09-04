@@ -38,6 +38,56 @@ def api_test2():
 	result = util.connectToPostgres(methods,config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,query)
 	return jsonify({"message":result,"code":200})
 
+@app.route('/api/v1/userList', methods= ['GET'])
+def userList():
+	result = []
+	headers = flask.request.headers
+	bearer = headers.get('Authorization')    # Bearer YourTokenHere
+	token = bearer.split()[1]  # YourTokenHere
+	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('user_less',token, None))
+	if userLess == [] :
+		return jsonify({"code":400,"status":"failed","message":"You have no permission to access"})
+	userLess = dict(zip(util.data_structure['userLess'], userLess[0]))
+	if userLess["role_id"] != '1' :
+		return jsonify({"code":400,"status":"failed","message":"Only Admin can access"})
+	userList = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('user_more',token, None))
+	for i in userList :
+		zipped = dict(zip(util.data_structure['userMore'], i))
+		result.append(zipped)
+	return jsonify({"code":200,"message":result})
+
+@app.route('/api/v1/changeUserStatus', methods= ['PUT'])
+def changeUserStatus():
+	headers = flask.request.headers
+	bearer = headers.get('Authorization') 
+	token = bearer.split()[1]  
+	status = request.json['status']
+	user_id = request.json['user_id']
+	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('user_less',token, None))
+	if userLess == [] :
+		return jsonify({"code":400,"status":"failed","message":"You have no permission to access"})
+	userLess = dict(zip(util.data_structure['userLess'], userLess[0]))
+	if userLess["role_id"] != '1' :
+		return jsonify({"code":400,"status":"failed","message":"Only Admin can access"})
+	result = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.updateQueryWithColumn('cms.user', [status], ['status'],'user_id',user_id))
+	return jsonify({"code":200,"message":"User Status Changed"})
+
+@app.route('/api/v1/deleteUser', methods= ['DELETE'])
+def deleteUser():
+	headers = flask.request.headers
+	bearer = headers.get('Authorization') 
+	token = bearer.split()[1]  
+	user_id = request.json['user_id']
+	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('user_less',token, None))
+	if userLess == [] :
+		return jsonify({"code":400,"status":"failed","message":"You have no permission to access"})
+	userLess = dict(zip(util.data_structure['userLess'], userLess[0]))
+	if userLess["role_id"] != '1' :
+		return jsonify({"code":400,"status":"failed","message":"Only Admin can access"})
+	result_delete = util.connectToPostgres("delete",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('delete_data',['cms.user','user_id',user_id],None))
+	return jsonify({"code":200,"message":"User Deleted"})
+
+
 @app.route('/api/v1/contentList', methods= ['GET'])
 def contentList():
 	result = []
@@ -86,7 +136,6 @@ def contentFile(content_id):
 	except : 
 		return jsonify({"message":"failed to get the file","code":"x01"})
 
-
 @app.route('/api/v1/commentList/<string:parent_id>', methods= ['GET'])
 def commentList(parent_id):
 	comment_list = []
@@ -98,7 +147,7 @@ def commentList(parent_id):
 
 
 @app.route('/api/v1/postContent', methods= ['POST'])
-def postContet():
+def postContent():
 	headers = flask.request.headers
 	bearer = headers.get('Authorization')    # Bearer YourTokenHere
 	token = bearer.split()[1]  # YourTokenHere
@@ -122,6 +171,8 @@ def postContet():
 		imagename = image.filename
 		image_path = os.path.join(config['path'], image.filename)
 		image.save(image_path)
+	except PermissionError :
+		return jsonify({'code':400, 'message':'Permission Denied on Saving File, Please Check Configuration'})
 	except :
 		image_path = ''
 		image = ''
@@ -131,6 +182,8 @@ def postContet():
 		filename = file.filename
 		file_path = os.path.join(config['path'], file.filename)
 		file.save(file_path)
+	except PermissionError :
+		return jsonify({'code':400, 'message':'Permission Denied on Saving File, Please Check Configuration'})
 	except :
 		file_path = ''
 		file = ''
