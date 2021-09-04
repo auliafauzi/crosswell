@@ -14,22 +14,14 @@ app.config["DEBUG"] = True
 app.config['JSON_SORT_KEYS'] = False
 app.config['UPLOAD_FOLDER'] = './files'
 
-config = {
-  'ORIGINS': [
-    'http://localhost:8080',  # React
-    'http://127.0.0.1:8084',  # React
-    'http://localhost:8004',
-    'http://0.0.0.0:8004',
-    'http://159.89.105.228:8004'
-  ],
+config = {}
 
-  'SECRET_KEY': '...',
-  'targethostname' : 'localhost',
-  'targetdatabase' : 'crosswell', 
-  'targetusername' : 'auliafauzi',
-  'targetpassword' : 'crosswell123'
-}
-
+try :
+	with open("crosswell.cnf") as json_file:
+		cnf = json.load(json_file)
+		config = cnf['config']
+except :
+	print('failed to load the AppConfigutration file, please check either the file is exist')
 
 CORS(app, resources={ r'/*': {'origins': config['ORIGINS']}}, supports_credentials=True)
 @cross_origin(origin='*')
@@ -74,18 +66,23 @@ def contentDetail(content_id):
 @app.route('/api/v1/contentImage/<string:content_id>', methods= ['GET'])
 def contentImage(content_id):
 	try :
-		image_path = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('get_image_path',content_id,None))
-		# content_result = dict(zip(util.data_structure['content'], content_result[0]))
-		# return jsonify({"image":image_path,"code":200})
-		return flask.send_file(image_path[0][0], mimetype='image/jpeg/jpg/png', as_attachment=True)
+		image = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('get_image_path',content_id,None))
+		image = image[0][0]
+		image_path = os.path.join(config['path'], image)
+		return flask.send_file(image_path, mimetype='image/jpeg/jpg/png', as_attachment=True,)
 	except : 
 		return jsonify({"message":"failed to get image","code":"x01"})
 
 @app.route('/api/v1/contentFile/<string:content_id>', methods= ['GET'])
 def contentFile(content_id):
 	try :
-		file_path = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('get_file_path',content_id,None))
-		return flask.send_file(file_path[0][0], mimetype='doc/docx/xls/xlsx/pdf', as_attachment=True)
+		file = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('get_file_path',content_id,None))
+		file = file[0][0]
+		file_path = os.path.join(config['path'], file)
+		response = flask.send_file(file_path, mimetype='doc/docx/xls/xlsx/pdf', as_attachment=True)
+		response.headers["x-filename"] = file
+		response.headers["Access-Control-Expose-Headers"] = 'x-filename'
+		return response
 	except : 
 		return jsonify({"message":"failed to get the file","code":"x01"})
 
@@ -122,24 +119,26 @@ def postContet():
 		latitude = ''
 	try :
 		image = request.files['image']
-		filename = image.filename
-		image_path = os.path.join("uploads", image.filename)
+		imagename = image.filename
+		image_path = os.path.join(config['path'], image.filename)
 		image.save(image_path)
 	except :
 		image_path = ''
 		image = ''
+		imagename = ''
 	try :
 		file = request.files['file']
 		filename = file.filename
-		file_path = os.path.join("uploads", file.filename)
+		file_path = os.path.join(config['path'], file.filename)
 		file.save(file_path)
 	except :
 		file_path = ''
 		file = ''
-	new_content = [new_content_id,title,content,user_id,longitude,latitude,image_path,file_path,datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
+		filename = ''
+	new_content = [new_content_id,title,content,user_id,longitude,latitude,imagename,filename,datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
 	query2 = util.insertQuery("cms.content", new_content)
 	result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],new_content,util.insertQuery("cms.content", new_content))
-	return jsonify({"new_content_id":new_content_id,"title":title,"content":content,"new_content":new_content,"result_push":result_push,"code":200})
+	return jsonify({"new_content_id":new_content_id,"title":title,"content":content,"new_content":new_content,"result_push":result_push,"code":200, "file": file_path})
 
 @app.route('/api/v1/postComment/<string:parent_id>', methods= ['POST'])
 def postComment(parent_id):
@@ -167,7 +166,7 @@ def login():
 		return jsonify({"code":500,"status":"Failed","rc":102, "message": "Invalid username or password"})
 	else :		#FOUND USERNAME-PASSWORD MATCH, LOGIN SUCCESSFULL
 		if login_result[0][4] == 'true': #TOKEN NOT EXPIRED YET
-			return jsonify({"username":username,"user_role":login_result[0][3],"user_id":login_result[0][2], "token": login_result[0][0]})
+			return jsonify({"username":username,"user_role":login_result[0][3],"user_id":login_result[0][2], "token": login_result[0][0], "code":200})
 		else : 		#TOKEN EXPIRED, UPDATE NEW TOKEN AND TOKEN_EXPIRED DATETIME
 			new_token = util.generateToken(login_result[0][2],datetime.now().strftime("%Y%m%d%H%M%S")) #GENERATE NEW TOKEN
 			data_to_push = [new_token,(datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")] #PREPARE DATA TO PUSH [NEWTOKEN,NEW-TOKEN-EXPIRED-DATETIME]
@@ -179,8 +178,8 @@ def editContent():
 	headers = flask.request.headers
 	bearer = headers.get('Authorization')
 	token = bearer.split()[1]
-	content_id = request.json['content_id']
-	content = request.json['content']
+	content_id = request.json['content']['content_id']
+	content = request.json['content']['content']
 	checkAuth = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('checkAuthority',[token,content_id,'content_id','content'],None))
 	if checkAuth == [] :
 		return jsonify({"code":500,"status":"failed","message":"You have no permission to access this content"})
@@ -235,5 +234,37 @@ def deleteComment(comment_id):
 		result_delete = util.connectToPostgres("delete",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('delete_data',['cms.comment','comment_id',comment_id],None))
 		return jsonify({"code":200,"status":"success","comment_id":comment_id,"message":"Delete comment is success","message2":result_delete})
 
+@app.route('/api/v1/register', methods= ['POST'])
+def register():
+	username = request.json['username']
+	email = request.json['email']
+	password = request.json['password']
+	checkUserExist = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('check_user_exist',[username,email],None))
+	if checkUserExist == [] : #Create new user
+		new_id = str(util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('next_id','user_id','user'))[0][0])
+		user_role = '3'
+		date_created = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		token_expired = (datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")
+		if config['register_approal'] == 'True':
+			status = 'pending'
+		else :
+			status = 'active'
+		token = util.generateToken(new_id,datetime.now().strftime("%Y%m%d%H%M%S"))
+		data_to_push = [new_id,username,user_role,date_created,token,token_expired,email,password,status]
+		result_push = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],data_to_push,util.insertQueryWithColumn('cms.user', data_to_push,['user_id','user_name','user_role','date_created','token','token_expired','email','password','status']))
+		# result_push = util.insertQueryWithColumn('cms.user', [new_id,username,user_role,date_created,token_expired,email,password,status],['user_id','user_name','user_role','date_created','token','token_expired','email','password','status'])
+		return jsonify({"code":200,"status":"success","user_name":username})
+	else :
+		return jsonify({"message":"User Already Exist","code":500,"status":"failed"})
+
 if __name__ == '__main__':
-	app.run(host="0.0.0.0")
+	try :
+		# print(config)
+		os.listdir(config["path"])
+		app.run(host="0.0.0.0")
+	except FileNotFoundError :
+		print("Directory for upload items not found")
+		print("please do : sudo mkdir " + config["path"])
+	except :
+		print("Unknown Error")
+	
