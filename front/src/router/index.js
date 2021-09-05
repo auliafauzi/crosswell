@@ -28,7 +28,8 @@ import NotFound from '../views/pages/NotFound.vue'
 import Home from '../views/pages/Home.vue'
 import Post from '../views/pages/Post.vue'
 import Map from '../views/pages/Map.vue'
-import Leaflet from '../views/pages/Leaflet.vue'
+import UserManagement from '../views/pages/UserManagement.vue'
+// import PromoEngine from '../views/pages/PromoEngine.vue'
 
 
 //ui
@@ -99,15 +100,24 @@ const router = new Router({
 			}
 		},
 		{
-			path: '/leaflet',
-			name: 'leaflet',
-			component: Leaflet,
+			path: '/userManagement',
+			name: 'userManagement',
+			component: UserManagement,
 			meta: {
 				layout: layouts.navTop,
 				searchable: true
 			}
 		},
 
+		// {
+		// 	path: '/promoEngine',
+		// 	name: 'promoEngine',
+		// 	component: PromoEngine,
+		// 	meta: {
+		// 		layout: layouts.navLeft,
+		// 		searchable: true
+		// 	}
+		// },
 
 		// {
 		// 	path: '/ecommerce-dashboard',
