@@ -44,8 +44,14 @@
 	<el-menu-item index="/map">
 		<i class="mdi mdi-earth"></i><span slot="title">Map</span>
 	</el-menu-item>
+	<el-menu-item index="/userManagement" v-if="roleSuperAdmin==true">
+		<i class="mdi mdi-account"></i><span slot="title">User Management</span>
+	</el-menu-item>
 	<!-- <el-menu-item index="/leaflet">
 		<i class="mdi mdi-earth"></i><span slot="title">Leaflet</span>
+	</el-menu-item> -->
+	<!-- <el-menu-item index="/promoEngine">
+		<i class="mdi mdi-bookshelf"></i><span slot="title">Promo Engine</span>
 	</el-menu-item> -->
 
 
@@ -70,6 +76,7 @@
 
 	<b-modal id="Profile_Modal"
 		 v-model="profileToggle"
+		 hide-header=True
 		 size="sm"
 		 ok-title="Ok"
 		 @ok="handleOk">
@@ -89,8 +96,50 @@
 		 <float-label class="styled">
 			 <input type="password" placeholder="Password" maxlength="100" v-model="password">
 		 </float-label>
+		 Have No Account ?
+		 <h3 style="font-weight: bold;cursor: pointer; font-size: 16px" @click="registerModal()">
+			 Register
+		 </h3>
 
 	 </b-modal>
+
+	 <b-modal id="Register_Modal"
+ 		 v-model="registerToggle"
+ 		 size="sm"
+ 		 ok-title="Ok"
+		 hide-header=True
+ 		 @ok="handleRegister">
+
+ 		 <template v-if="errorAlert">
+ 			<b-row>
+ 				<b-col sm="12">
+ 					<b-alert show variant="danger">{{errorMessage}}</b-alert>
+ 				</b-col>
+ 			</b-row>
+ 		</template>
+		<template v-if="successAlert">
+		 <b-row>
+			 <b-col sm="12">
+				 <b-alert show variant="success">{{successMessage}}</b-alert>
+			 </b-col>
+		 </b-row>
+	 </template>
+
+ 		 <img class="image-logo" src="@/assets/images/logo.png" alt="logo" style="width:50%; margin-left:25%; margin-bottom:20%; margin-top:10%"/>
+		 <h3 style="font-weight: bold;cursor: pointer; font-size: 22px; text-align: center;">
+			 Register
+		 </h3>
+		 <float-label class="styled" style="margin-top:30px">
+ 			 <input type="user name" placeholder="Name" maxlength="100" v-model="userName">
+ 		 </float-label>
+		 <float-label class="styled">
+ 			 <input type="email" placeholder="Email" maxlength="100" v-model="email">
+ 		 </float-label>
+ 		 <float-label class="styled">
+ 			 <input type="password" placeholder="Password" maxlength="100" v-model="password">
+ 		 </float-label>
+
+ 	 </b-modal>
 
 	 <b-modal id="Logout_Modal"
  		 v-model="logoutToggle"
@@ -128,10 +177,14 @@ export default {
 			activeLink: null,
 			profileToggle: false,
 			logoutToggle: false,
+			registerToggle:false,
 			userName:'',
 			password:'',
+			email:'',
 			errorAlert: false,
-			errorMessage: ''
+			errorMessage: '',
+			successAlert: false,
+			successMessage: ''
 		}
 	},
 	methods: {
@@ -145,12 +198,15 @@ export default {
 			}
 		},
 		profileModal(){
-			if ( getUserDataInSession2('UserRole') == "0" || getUserDataInSession2('UserRole') == '' || getUserDataInSession2('UserRole') == undefined) {
+			if ( getUserDataInSession2('UserRole') == 0 || getUserDataInSession2('UserRole') == "0" || getUserDataInSession2('UserRole') == '' || getUserDataInSession2('UserRole') == undefined) {
 				this.profileToggle = true
 			} else {
 				this.logoutToggle = true
 			}
-
+		},
+		registerModal(){
+			this.profileToggle = false
+			this.registerToggle = true
 		},
 		setLink(path) {
 			this.activeLink = path
@@ -161,17 +217,20 @@ export default {
       // Trigger submit handler
       this.login()
     },
+		handleRegister(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault()
+      // Trigger submit handler
+			this.register()
+      // this.login()
+    },
 		login(){
 				if (this.userName === '') {
-					// this.profileToggle = true;
-					// this.$refs['Profile_Toggle'].show()
 					this.errorMessage = 'Username tidak boleh kosong';
 					this.errorAlert = true;
 					setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
 				}
 				else if (this.password === '') {
-					// this.profileToggle = true;
-					// this.$refs['Profile_Toggle'].show()
 					this.errorMessage = 'Password tidak boleh kosong';
 					this.errorAlert = true;
 					setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
@@ -256,10 +315,64 @@ export default {
 			      });
 				}
 		},
+		register(){
+				if (this.userName === '') {
+					this.errorMessage = 'Username tidak boleh kosong';
+					this.errorAlert = true;
+					setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+				}
+				if (this.email === '') {
+					this.errorMessage = 'Email tidak boleh kosong';
+					this.errorAlert = true;
+					setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+				}
+				else if (this.password === '') {
+					this.errorMessage = 'Password tidak boleh kosong';
+					this.errorAlert = true;
+					setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+				}
+				else {
+					var headers = {
+						'Content-Type': 'application/json'
+					}
+					axios.post(`${BASE_URL}/api/v1/register`,{
+									username: this.userName,
+									email: this.email,
+									password: this.password
+								}, headers
+						).then(response => {
+							if (response.status === 200) {
+								if (response.data.code === 200){
+									console.log("registerResponse: " , response.data)
+									this.successMessage = "Register Successful"
+									this.successAlert = true
+									setTimeout(() => {this.successAlert = false, this.successMessage = ''}, 3000);
+									this.login()
+								}
+								else {
+									console.log("registerResponse: " , response.data)
+									this.errorMessage = response.data.message
+									this.errorAlert = true
+									setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+									// setTimeout(() => {login()}, 2000);
+								}
+							}
+							else {
+								// console.log("registerResponse: " , response.data)
+								this.errorMessage = 'Server Sedang Bermasalah'
+								this.errorAlert = true
+								setTimeout(() => {this.errorAlert = false, this.errorMessage = ''}, 3000);
+							}
+						}).catch((error) => {
+							console.log("registerResponse: " , error)
+						});
+					}
+		},
 		handleLogout(){
 			// localStorage.removeItem(['UserName','UserRole','token'])
 			localStorage.removeItem('UserName')
 			localStorage.removeItem('UserRole')
+			saveUserDataInSession2('UserRole',0)
 			localStorage.removeItem('UserId')
 			localStorage.removeItem('token')
 			window.location.reload();
@@ -279,10 +392,14 @@ export default {
 	mounted() {
 		console.log("userRole: " + getUserDataInSession2('UserRole'))
 
-		if (getUserDataInSession2('UserRole') == "0") {
+		if (getUserDataInSession2('UserRole') == 0) {
 			this.profile_name = "PROFILE"
 		} else {
 			this.profile_name = String(getUserDataInSession2('UserName').replace(/\"/gi, ''))
+		}
+		let check = getUserDataInSession2('UserRole')
+		if (getUserDataInSession2('UserRole') == '"1"'){
+			this.roleSuperAdmin = true
 		}
 	}
 }
