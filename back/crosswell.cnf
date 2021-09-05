@@ -1,0 +1,19 @@
+{
+"config" : {
+  "ORIGINS": [
+    "http://localhost:8080",
+    "http://127.0.0.1:8084",
+    "http://localhost:8004",
+    "http://0.0.0.0:8004",
+    "http://159.89.105.228:8004"
+  ],
+
+  "SECRET_KEY": "...",
+  "targethostname" : "localhost",
+  "targetdatabase" : "crosswell", 
+  "targetusername" : "auliafauzi",
+  "targetpassword" : "crosswell123",
+  "path" : "/Users/auliafauzi/Documents/Crosswell_CMS/back/uploads",
+  "register_approal" : "False"
+  }
+}
