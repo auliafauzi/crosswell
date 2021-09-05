@@ -54,7 +54,7 @@ def userList():
 	for i in userList :
 		zipped = dict(zip(util.data_structure['userMore'], i))
 		result.append(zipped)
-	return jsonify({"code":200,"message":result})
+	return jsonify({"code":200,"data":result})
 
 @app.route('/api/v1/changeUserStatus', methods= ['PUT'])
 def changeUserStatus():
@@ -69,21 +69,29 @@ def changeUserStatus():
 	userLess = dict(zip(util.data_structure['userLess'], userLess[0]))
 	if userLess["role_id"] != '1' :
 		return jsonify({"code":400,"status":"failed","message":"Only Admin can access"})
+	if user_id == '1' :
+		return jsonify({"code":400,"status":"failed","message":"You Change Change Super Admin"})
+	if user_id == '0' :
+		return jsonify({"code":400,"status":"failed","message":"You Cannot Change Visitor User"})
 	result = util.connectToPostgres("push",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.updateQueryWithColumn('cms.user', [status], ['status'],'user_id',user_id))
 	return jsonify({"code":200,"message":"User Status Changed"})
 
-@app.route('/api/v1/deleteUser', methods= ['DELETE'])
-def deleteUser():
+@app.route('/api/v1/deleteUser/<string:user_id>', methods= ['DELETE'])
+def deleteUser(user_id):
 	headers = flask.request.headers
 	bearer = headers.get('Authorization') 
 	token = bearer.split()[1]  
-	user_id = request.json['user_id']
+	# user_id = request.json['user_id']
 	userLess = util.connectToPostgres('get',config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('user_less',token, None))
 	if userLess == [] :
 		return jsonify({"code":400,"status":"failed","message":"You have no permission to access"})
 	userLess = dict(zip(util.data_structure['userLess'], userLess[0]))
 	if userLess["role_id"] != '1' :
 		return jsonify({"code":400,"status":"failed","message":"Only Admin can access"})
+	if user_id == '1' :
+		return jsonify({"code":400,"status":"failed","message":"You Cannot Delete Super Admin"})
+	if user_id == '0' :
+		return jsonify({"code":400,"status":"failed","message":"You Cannot Delete Visitor User"})
 	result_delete = util.connectToPostgres("delete",config['targethostname'],config['targetdatabase'],config['targetusername'],config['targetpassword'],None,util.query('delete_data',['cms.user','user_id',user_id],None))
 	return jsonify({"code":200,"message":"User Deleted"})
 
