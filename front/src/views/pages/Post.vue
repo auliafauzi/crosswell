@@ -53,10 +53,10 @@
         <b-button v-if= "user_id != '' " variant="outline-primary" @click="openPostCommentDialog()" size="sm" class="mr-1" style="margin-left: 70px;">
           Leave Comment
         </b-button>
-          <b-button variant="outline-primary" size="sm" class="mr-1" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
+          <b-button variant="outline-primary" size="sm" class="mr-1" @click="openEditPostDialog()" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
             Edit Post
           </b-button>
-          <b-button variant="outline-danger" size="sm" class="mr-1" @click="deletePost()" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
+          <b-button variant="outline-danger" size="sm" class="mr-1" @click="deleteConfirm()" style="margin-left: 10px;" v-if= "user_id == this.content.user_id || this.user_role == 1">
             Delete Post
           </b-button>
       </div>
@@ -92,14 +92,6 @@
 
        <div class="page-quill scrollable">
      		<div class="card-base card-shadow--medium">
-     			<!-- <VuePellEditor
-     				:actions="dialogOptions"
-     				:content="dialogComment"
-     				:placeholder="dialogPlaceholder"
-     				v-model="comment"
-     				:styleWithCss="false"
-     				editorHeight="400px"
-     			/> -->
 					<b-form-textarea
 			      id="textarea"
 			      v-model="comment"
@@ -109,6 +101,31 @@
      		</div>
      	</div>
 		</b-modal>
+
+		<b-modal id="EditContentModal"
+       title="Edit Content"
+       v-model="editContentToggle"
+       size="lg"
+       ok-title="Ok"
+       @ok="editContent">
+
+       <div class="page-quill scrollable">
+     		<div class="card-base card-shadow--medium">
+					<b-form-textarea
+			      id="textarea"
+			      v-model="content.content"
+			      rows="19"
+			    ></b-form-textarea>
+     		</div>
+     	</div>
+		</b-modal>
+
+		<b-modal id="confirmDeleteModal"
+						v-model="DeleteToggle"
+						ok-title="Ok" @ok="deletePost()">Delete this Post ?
+
+		</b-modal>
+
 	</div>
 </template>
 
@@ -130,6 +147,8 @@ export default {
       commentModalToggle : false,
 			SuccessToogle : false,
 			AlertToggle : false,
+			DeleteToggle: false,
+			editContentToggle: false,
 			SuccessMassage:'',
 			AlertMassage:'',
       tango : true,
@@ -165,11 +184,12 @@ export default {
    // })
 	 try {
 		 this.user_id = String(getUserDataInSession2('UserId').replace(/\"/gi, ''))
+		 this.user_role = getUserDataInSession2('UserRole').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+		 this.token = getUserDataInSession2('token').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
 	 } catch(err) {
 		 console.log("err: ", err)
 	 }
-	 this.user_role = getUserDataInSession2('UserRole').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
-	 this.token = getUserDataInSession2('token').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+
    this.content_id = this.$route.params.id
    console.log("yaa " + this.$route.params.id)
    this.getData()
@@ -218,8 +238,8 @@ export default {
 
     },
 		submitComment() {
-			this.comment = this.comment.replace('<div>','');
-      this.comment = this.comment.replace('</div>','');
+			// this.comment = this.comment.replace('<div>','');
+      // this.comment = this.comment.replace('</div>','');
       var headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.token}`
@@ -230,23 +250,63 @@ export default {
 				},{headers}).then((response) => {
         // console.log(response.data.result)
         if (response.status === 200) {
-          if (response.data.status === "Success") {
-            // this.clearFiles()
-            // this.successMessage = 'File Upload Has Been Completed ';
-            this.successMessage = response.data.status + response.data.message
-            this.successUploadFile = true;
-            setTimeout(() => {this.successUploadFile = false, this.file = '', location.reload()}, 3000);
+          if (response.data.code === 200) {
+						this.SuccessMassage = "Comment posted"
+						this.SuccessToogle = true
+						console.log("SuccessMassage:", this.SuccessMassage)
+						setTimeout(() => {this.SuccessToogle = false, this.successMessage = ''}, 3000);
           } else {
-            this.errorMessage = 'Internal Server Error';
-            this.errorUploadFile = true;
-            setTimeout(() => {this.errorUploadFile = false, this.file = ''}, 5000);
+						this.AlertMassage = "Failed to post the comment"
+						this.AlertToggle = true
+						setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 7000);
           }
         } else {
-          this.errorMessage = 'Internal Server Error';
-          this.errorUploadFile = true;
-          setTimeout(() => {this.errorUploadFile = false, this.file = ''}, 5000);
+          this.AlertMassage = 'Internal Server Error';
+					this.AlertToggle = true
+					setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 7000);
         }
 				this.getData()
+      }).catch((error) => {
+        if (error.response !== undefined) {
+          this.success = false;
+          // setAlert(this, error.response);
+        }
+      });
+    },
+		editContent() {
+			this.token = getUserDataInSession2('token')
+			if (this.token != '') {
+					this.token = getToken().replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+			}
+			console.log("submit token :", this.token )
+
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      };
+      axios.post(`${BASE_URL}/api/v1/editContent`,{
+					content: this.content
+				},{headers}).then((response) => {
+
+        if (response.status === 200) {
+          if (response.data.status === "success") {
+						this.SuccessMassage = response.data.message
+						this.SuccessToogle = true
+						console.log("SuccessMassage:", this.SuccessMassage)
+						setTimeout(() => {this.SuccessToogle = false, this.successMessage = '',location.reload()}, 3000);
+            // setTimeout(() => {this.successUploadFile = false, this.file = '', location.reload()}, 3000);
+          } else {
+						this.AlertMassage = response.data.message
+						this.AlertToggle = true
+						setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 7000);
+          }
+					this.getData()
+        } else {
+          this.AlertMassage = 'Internal Server Error';
+					// this.AlertMassage = response.data.message
+					this.AlertToggle = true
+					setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 7000);
+        }
       }).catch((error) => {
         if (error.response !== undefined) {
           this.success = false;
@@ -263,7 +323,16 @@ export default {
 			axios.get(`${BASE_URL}/api/v1/contentFile/${this.$route.params.id}`,{
 						responseType: 'blob'
 						},
-				)
+				).then((response) => {
+			    const url = window.URL.createObjectURL(new Blob([response.data]));
+			    const link = document.createElement('a');
+					let filename = response.headers["x-filename"];
+			    link.href = url;
+					// window.open(url)
+			    link.setAttribute('download', filename);
+			    document.body.appendChild(link);
+			    link.click();
+			})
 		},
     // goTo(content_id) {
     //   // this.postModalToggle = true
@@ -272,6 +341,12 @@ export default {
     // },
 		openPostCommentDialog() {
 			this.commentModalToggle = true
+		},
+		deleteConfirm(){
+			this.DeleteToggle = true
+		},
+		openEditPostDialog(){
+			this.editContentToggle = true
 		},
 		deletePost(){
 			this.token = getUserDataInSession2('token').replace(/[.",\/#!$%\^&\*;:{}=\-_`~()]/g,"")
@@ -284,22 +359,22 @@ export default {
 			).then((response) => {
 					if (response.status === 200) {
 						if (response.data.code === 200){
-							this.SuccessMassage == response.data.message
-							this.SuccessToogle == true
-							console.log(response.data.message)
+							this.SuccessMassage = response.data.message
+							this.SuccessToogle = true
+							console.log("SuccessMassage:", this.SuccessMassage)
 							setTimeout(() => {this.SuccessToogle = false, this.successMessage = '',this.$router.push("/home")}, 3000);
 						}
 						else {
-							this.AlertMassage == response.data.message
-							this.AlertToggle == true
+							this.AlertMassage = response.data.message
+							this.AlertToggle = true
 							setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 3000);
 							// console.log(response.data.message)
 						}
 					}
 					else {
 						// failed to get response
-						this.AlertMassage == "Internal server down"
-						this.AlertToggle == true
+						this.AlertMassage = "Internal server down"
+						this.AlertToggle = true
 						setTimeout(() => {this.AlertToggle = false, this.AlertMassage = ''}, 3000);
 						// console.log("Internal server down")
 					}
