@@ -19,7 +19,8 @@
 			<template v-if="this.ImagePath != ''">
 			 <img class="logo-mini" :src=this.ImagePath alt="logo"
 			 height="150px"
-			 width="150px"/></p></template>
+			 width="150px"/></p>
+		 </template>
 			<b-button variant="outline-primary" size="sm" @click="changeLogo()" class="mr-1">
 				Change Logo
 			</b-button>
@@ -43,7 +44,7 @@
 				<i class="mdi mdi-menu"></i>
 			</button>
 
-			<img class="logo-mini" src="@/assets/images/logo.png" alt="logo"/> 
+			<img class="logo-mini" src="@/assets/images/logo.png" alt="logo"/>
 
 			<!-- <search class="hidden-xs-only"></search> -->
 		</div>
