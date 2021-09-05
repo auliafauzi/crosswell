@@ -1,0 +1,162 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 11.5
+-- Dumped by pg_dump version 11.5
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: cms; Type: SCHEMA; Schema: -; Owner: auliafauzi
+--
+
+CREATE SCHEMA cms;
+
+
+ALTER SCHEMA cms OWNER TO auliafauzi;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: comment; Type: TABLE; Schema: cms; Owner: auliafauzi
+--
+
+CREATE TABLE cms.comment (
+    comment_id character varying,
+    comment text,
+    user_id character varying,
+    parent_id character varying,
+    date timestamp without time zone
+);
+
+
+ALTER TABLE cms.comment OWNER TO auliafauzi;
+
+--
+-- Name: content; Type: TABLE; Schema: cms; Owner: auliafauzi
+--
+
+CREATE TABLE cms.content (
+    content_id character varying NOT NULL,
+    title character varying,
+    content text,
+    user_id character varying,
+    long character varying,
+    lat character varying,
+    image_path character varying,
+    file_path character varying,
+    date timestamp(0) without time zone
+);
+
+
+ALTER TABLE cms.content OWNER TO auliafauzi;
+
+--
+-- Name: role; Type: TABLE; Schema: cms; Owner: auliafauzi
+--
+
+CREATE TABLE cms.role (
+    role_id character varying,
+    role_description character varying
+);
+
+
+ALTER TABLE cms.role OWNER TO auliafauzi;
+
+--
+-- Name: user; Type: TABLE; Schema: cms; Owner: auliafauzi
+--
+
+CREATE TABLE cms."user" (
+    user_id character varying,
+    user_name character varying,
+    user_role character varying,
+    date_created timestamp without time zone,
+    token character varying,
+    last_sign_in timestamp without time zone,
+    token_expired timestamp(0) without time zone,
+    email character varying,
+    password character varying,
+    status character varying
+);
+
+
+ALTER TABLE cms."user" OWNER TO auliafauzi;
+
+--
+-- Data for Name: comment; Type: TABLE DATA; Schema: cms; Owner: auliafauzi
+--
+
+COPY cms.comment (comment_id, comment, user_id, parent_id, date) FROM stdin;
+c12	test	002	p21	2021-06-28 03:26:42
+c13	ya ya ya gambar nya keluar	002	p17	2021-06-28 05:57:45
+c2	Aliquam gravida urna sed velit iaculis, at placerat risus posuere. Sed dignissim laoreet turpis, ac imperdiet turpis tristique non. Quisque porta leo arcu, vel mattis nibh pellentesque ac. Nullam consequat est in justo lobortis, a ultrices nisi tempus. Nunc eu sem consectetur, commodo ipsum ut, volutpat purus. Quisque eget augue ut ex tempus pellentesque. Nullam ultrices dolor diam. Morbi pretium nulla in ornare cursus. Duis ut nisl cursus, pulvinar eros eu, tristique erat. Quisque et tortor non nisl fermentum dignissim eget at lacus. Etiam lacus sapien, vestibulum eget diam non, sagittis aliquam neque. Aliquam et orci odio. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In varius dolor non urna elementum convallis. Pellentesque quis ante ipsum.	1	p2	2021-06-15 12:22:22
+c3	Aliquam gravida urna sed velit iaculis, at placerat risus posuere. Sed dignissim laoreet turpis, ac imperdiet turpis tristique non. Quisque porta leo arcu, vel mattis nibh pellentesque ac. Nullam consequat est in justo lobortis, a ultrices nisi tempus. Nunc eu sem consectetur, commodo ipsum ut, volutpat purus. Quisque eget augue ut ex tempus pellentesque. Nullam ultrices dolor diam. Morbi pretium nulla in ornare cursus. Duis ut nisl cursus, pulvinar eros eu, tristique erat. Quisque et tortor non nisl fermentum dignissim eget at lacus. Etiam lacus sapien, vestibulum eget diam non, sagittis aliquam neque. Aliquam et orci odio. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In varius dolor non urna elementum convallis. Pellentesque quis ante ipsum.	2	p3	2021-06-14 20:22:22
+c4	yaaa	2	p19	2021-06-28 03:10:49
+c5	komen teroossss	2	p2	2021-06-28 03:17:13
+c6	terus ajaaaaa	2	p2	2021-06-28 03:17:23
+c7	ya ya ya betul btul	2	p2	2021-06-28 03:17:30
+c10	test ya kah ?masa.&nbsp;<div><br></div><div><br></div><div><br></div>	2	p20	2021-06-28 03:22:52
+c11	test ya kah ?masa.&nbsp;<div><br><div><br></div><div>dan&nbsp;</div><div><br></div><div><br></div><div>ini ku coba</div><div><br></div><div><br></div><div><br></div></div>	2	p20	2021-06-28 03:25:02
+c1	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vel mi vitae mauris pellentesque facilisis et id risus. Fusce justo purus, ultricies ut augue eu, gravida hendrerit diam. Praesent fermentum odio iaculis tortor fermentum, non condimentum dolor suscipit. Duis quis luctus dui, id tincidunt urna. Sed condimentum tincidunt neque. Curabitur finibus mi quam, in hendrerit leo rhoncus sit amet. Proin vel sagittis nibh, eleifend commodo dui. Phasellus nec libero ultricies ante pretium porta. Maecenas sagittis quam ac luctus fringilla.\n\n	2	p2	2021-06-15 12:21:02
+c9	test ya kah ? by userid3	3	p20	2021-06-28 03:22:43
+c14	test di p20 oleh userid2	2	p20	2021-07-08 00:52:47
+c15	test di p20 oleh userid:2 yg kedua	2	p20	2021-07-08 00:53:19
+c16	ya ini by potsman sekarang!	2	p1	2021-07-09 00:15:30
+c17	ya ini by potsman sekarang!	2	p1	2021-07-09 00:16:54
+c18	ya ini by potsman sekarang!	0	p1	2021-07-09 00:18:24
+c19	comment	2	p5	2021-09-05 02:12:13
+\.
+
+
+--
+-- Data for Name: content; Type: TABLE DATA; Schema: cms; Owner: auliafauzi
+--
+
+COPY cms.content (content_id, title, content, user_id, long, lat, image_path, file_path, date) FROM stdin;
+p4	Test Posting #4	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque aliquet eros quis risus semper feugiat. Ut maximus accumsan diam, a egestas urna lobortis nec. Vivamus vel aliquet orci. Nam auctor pretium consectetur. Nam quis odio tempor, feugiat nibh sed, accumsan nunc. Phasellus nec turpis augue. Aliquam dictum sodales cursus. Suspendisse potenti. Ut posuere, nisl viverra condimentum convallis, est turpis elementum nisi, quis mattis neque felis consectetur nulla. Nulla tristique felis et mattis tempus. Donec a tincidunt lectus. Ut et eros vitae eros ultrices scelerisque ac a turpis. Quisque scelerisque magna at orci fringilla, vel consectetur leo pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.	2	\N	\N	\N	\N	2021-06-11 15:40:40
+p1	Test Posting #1	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque aliquet eros quis risus semper feugiat. Ut maximus accumsan diam, a egestas urna lobortis nec. Vivamus vel aliquet orci. Nam auctor pretium consectetur. Nam quis odio tempor, feugiat nibh sed, accumsan nunc. Phasellus nec turpis augue. Aliquam dictum sodales cursus. Suspendisse potenti. Ut posuere, nisl viverra condimentum convallis, est turpis elementum nisi, quis mattis neque felis consectetur nulla. Nulla tristique felis et mattis tempus. Donec a tincidunt lectus. Ut et eros vitae eros ultrices scelerisque ac a turpis. Quisque scelerisque magna at orci fringilla, vel consectetur leo pharetra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.	1	\N	\N	\N	\N	2021-06-01 13:40:40
+p2	Test Posting #2	ya ini by potsman!	2	\N	\N	\N	\N	2021-06-01 13:45:40
+p5	ITB 	Insert text about ITB here	1	107.60	-6.89	itb.jpeg	SAMPLE FILE ITB.docx	2021-09-05 01:30:37
+\.
+
+
+--
+-- Data for Name: role; Type: TABLE DATA; Schema: cms; Owner: auliafauzi
+--
+
+COPY cms.role (role_id, role_description) FROM stdin;
+1	Super Admin
+2	Admin
+3	Regular
+0	Visitor
+\.
+
+
+--
+-- Data for Name: user; Type: TABLE DATA; Schema: cms; Owner: auliafauzi
+--
+
+COPY cms."user" (user_id, user_name, user_role, date_created, token, last_sign_in, token_expired, email, password, status) FROM stdin;
+0	VISITOR	0	2021-07-01 15:00:00	0	\N	2999-01-01 00:00:00	\N		active
+1	Admin	1	2021-05-20 15:00:00	1182305f8c7d672ea55da6a46089de0e120210905194951	\N	2021-09-05 21:49:51	admin@admin.com	CrosswellAdmin123!	active
+2	Test User	3	2021-05-20 15:00:00	947b82193a0a0469b8e2bc9613f415b3220210905195103	\N	2021-09-05 21:51:03	aulia.test@testing.com	aulia123	active
+\.
+
+
+--
+-- PostgreSQL database dump complete
+--
+
