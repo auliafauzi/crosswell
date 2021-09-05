@@ -12,7 +12,7 @@
 				style="width: 100%; height: 600px"
 			>
 				<div v-for="i in markerByContent ">
-					<GmapMarker :position="{lat:i.lat, lng:i.lng}" :label="i.label" />
+					<GmapMarker :position="{lat:i.lat, lng:i.lng}" :label="i.label" @click="goto(i.content_id)"/>
 				</div>
 
 
@@ -134,6 +134,7 @@ export default {
 		this.getData()
 		console.log('user_role: ' + this.user_role)
 		console.log('user_token: ' + this.token)
+		console.log('markerByContent: ' + this.markerByContent)
   },
 	computed: {
 		// curvedPath () {
@@ -267,7 +268,9 @@ export default {
 										console.log("ada nih")
 										const contentObject = {
 											"lng": Number(response.data.message[i].long),
-											"lat": Number(response.data.message[i].lat)
+											"lat": Number(response.data.message[i].lat),
+											"label": response.data.message[i].title,
+											"content_id": response.data.message[i].content_id,
 										}
 										this.markerByContent.push(contentObject)
 									}
@@ -302,6 +305,9 @@ export default {
 				}
 				this.end = null
 			}
+		},
+		goto(content_id){
+			this.$router.push({name: 'post', params: { id: content_id } })
 		},
 		// mapClicked(mouseArgs) {
 		// 	console.log('map clicked', mouseArgs); // eslint-disable-line no-console
