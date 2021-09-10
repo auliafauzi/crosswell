@@ -120,4 +120,11 @@ python3 crosswell_api.py
 #or you can run the app backside and kill the terminal *warning, please know what you do and how to stop the app before execute this
 nohup python3 crosswell_api.py
 ```
+## Deploy Back-End API
+``` bash
+#Deploy flask using Gunicorn and Nginx :
+https://faun.pub/deploy-flask-app-with-nginx-using-gunicorn-7fda4f50066a
 
+#Deploy flask using uWSGI and Nginx :
+https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04
+```
